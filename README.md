@@ -335,7 +335,7 @@ erDiagram
 
     JOB_CARD {
         bigint job_card_id PK
-        bigint appointment_id FK UK
+        bigint appointment_id FK
         bigint manager_id FK
         bigint mechanic_id FK
         datetime start_time
@@ -394,22 +394,27 @@ erDiagram
         varchar razorpay_signature
         enum payment_method
         datetime paid_at
-        bigint job_card_id FK UK
+        bigint job_card_id FK
         datetime created_on
         datetime updated_on
     }
 
-    USERS ||--o{ USERS : "manager_id (self-ref)"
-    USERS ||--o{ VEHICLES : "customer_id"
-    VEHICLES ||--o{ APPOINTMENTS : "vehicle_id"
-    APPOINTMENTS ||--o| JOB_CARD : "appointment_id"
-    USERS ||--o{ JOB_CARD : "manager_id"
-    USERS ||--o{ JOB_CARD : "mechanic_id"
-    JOB_CARD ||--o{ JOB_CARD_ITEM : "job_card_id"
-    JOB_CARD ||--o{ JOB_CARD_EVIDENCE : "job_card_id"
-    INVENTORY ||--o{ JOB_CARD_ITEM : "product_id"
-    JOB_CARD ||--o| INVOICE : "job_card_id"
+    USERS ||--o{ USERS : manages
+    USERS ||--o{ VEHICLES : owns
+    VEHICLES ||--o{ APPOINTMENTS : has
+    APPOINTMENTS ||--|| JOB_CARD : generates
+    USERS ||--o{ JOB_CARD : manages
+    USERS ||--o{ JOB_CARD : assigned_to
+    JOB_CARD ||--o{ JOB_CARD_ITEM : contains
+    INVENTORY ||--o{ JOB_CARD_ITEM : supplies
+    JOB_CARD ||--o{ JOB_CARD_EVIDENCE : has
+    JOB_CARD ||--|| INVOICE : generates
 ```
+
+> **Notes**
+> - `email`, `license_plate`, `sku_code`, and `invoice_number` are unique.
+> - Each **Appointment** can have at most one **Job Card**.
+> - Each **Job Card** can have at most one **Invoice**.
 
 ---
 
