@@ -1,4 +1,4 @@
-<![CDATA[<p align="center">
+<p align="center">
   <h1 align="center">🚗 SmartServ — Vehicle Service Management Platform</h1>
   <p align="center">
     A comprehensive Spring Boot REST API for managing automobile service centers — from appointments and job cards to inventory, invoicing, and Razorpay-powered payments.
@@ -1127,4 +1127,3 @@ This project is licensed under the **Apache License 2.0** — see the [LICENSE](
 <p align="center">
   <b>Built with ❤️ using Spring Boot</b>
 </p>
-]]>
