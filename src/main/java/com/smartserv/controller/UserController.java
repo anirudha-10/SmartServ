@@ -5,18 +5,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.smartserv.dto.CreateUserDto;
 import com.smartserv.dto.UpdateUserDto;
 import com.smartserv.dto.UserResponseDto;
 import com.smartserv.service.UserService;
 
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -25,14 +22,6 @@ import lombok.AllArgsConstructor;
 
 public class UserController {
 	private final UserService userService;
-
-	@PostMapping
-	public ResponseEntity<?> createUser(@RequestBody @Valid CreateUserDto dto) {
-		UserResponseDto created = userService.createUser(dto);
-		System.out.println(dto);
-
-		return ResponseEntity.status(HttpStatus.CREATED).body(created);
-	}
 
 	@GetMapping("/getUsers")
 	public ResponseEntity<?> getUsers() {

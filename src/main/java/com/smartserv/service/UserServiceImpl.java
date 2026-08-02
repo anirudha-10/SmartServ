@@ -31,10 +31,13 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserResponseDto createUser(CreateUserDto dto) {
-		if (userRepo.existsByEmail(dto.getEmail())) {
-			throw new ResourceAlreadyExists("user already exists..");
+		String cleanEmail = dto.getEmail() != null ? dto.getEmail().trim().toLowerCase() : null;
+		dto.setEmail(cleanEmail);
+		if (userRepo.existsByEmail(cleanEmail)) {
+			throw new ResourceAlreadyExists("User with email " + cleanEmail + " already exists.");
 		}
 		User entity = mapper.map(dto, User.class);
+		entity.setEmail(cleanEmail);
 		entity.setPassword(encoder.encode(dto.getPassword()));
 
 		if (dto.getUserRole() == Role.MECHANIC && dto.getManagerId() != null) {
