@@ -35,19 +35,24 @@ public class VehicleServiceImpl implements VehicleService {
 			throw new ResourceAlreadyExists("Vehicle with the license plate already exists.");
 		}
 
-		Vehicle vehicle = mapper.map(dto, Vehicle.class);
-
 		User customer = userRepo.findById(dto.getCustomerId()).orElseThrow(
-				() -> new ResourceNotFoundException("Customer does not exists with the given customer id"));
+				() -> new ResourceNotFoundException("Customer does not exist with the given customer id: " + dto.getCustomerId()));
 
 		if (customer.getUserRole() != Role.CUSTOMER) {
 			throw new RuntimeException("Error: User with ID: " + dto.getCustomerId()
-					+ " is not a customer. Only customer can own a vehicle.");
+					+ " is not a customer. Only customers can own a vehicle.");
 		}
 
+		Vehicle vehicle = new Vehicle();
+		vehicle.setLicensePlate(dto.getLicensePlate());
+		vehicle.setBrand(dto.getBrand() != null ? dto.getBrand() : dto.getBrand());
+		vehicle.setModel(dto.getModel());
+		vehicle.setColor(dto.getColor());
 		vehicle.setCustomer(customer);
-		vehicleRepo.save(vehicle);
-		return mapVehicleToDto(vehicle);
+		vehicle.setActive(true);
+
+		Vehicle savedVehicle = vehicleRepo.save(vehicle);
+		return mapVehicleToDto(savedVehicle);
 	}
 
 	@Override
@@ -130,8 +135,13 @@ public class VehicleServiceImpl implements VehicleService {
 	}
 
 	private VehicleResponseDto mapVehicleToDto(Vehicle vehicle) {
-		VehicleResponseDto response = mapper.map(vehicle, VehicleResponseDto.class);
+		VehicleResponseDto response = new VehicleResponseDto();
 		response.setVehicleId(vehicle.getId());
+		response.setLicensePlate(vehicle.getLicensePlate());
+		response.setBrand(vehicle.getBrand());
+		response.setModel(vehicle.getModel());
+		response.setColor(vehicle.getColor());
+		response.setActive(vehicle.isActive());
 
 		if (vehicle.getCustomer() != null) {
 			response.setCustomerId(vehicle.getCustomer().getId());

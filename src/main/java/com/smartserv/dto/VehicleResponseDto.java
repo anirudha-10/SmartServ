@@ -1,5 +1,6 @@
 package com.smartserv.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,18 +8,17 @@ import lombok.Setter;
 @Setter
 public class VehicleResponseDto {
 
-	private Long VehicleId;
+	private Long vehicleId;
 	private String licensePlate;
 	private String brand;
 	private String model;
 	private String color;
 	
-	private boolean isActive;
+	@JsonProperty("active")
+	private boolean active;
 	
-	
-	private Long CustomerId;
+	private Long customerId;
 	private String customerName;
 	private String customerEmail;
 	private String customerMobile;
-	
 }
