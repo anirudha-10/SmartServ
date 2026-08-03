@@ -3,6 +3,7 @@ import { Card, Form, Button, Row, Col, Badge } from 'react-bootstrap';
 import { useAuth } from '../../context/AuthContext';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
+import { userService } from '../../services/userService';
 
 const ProfileSettings = () => {
   const { user, role } = useAuth();
@@ -15,8 +16,34 @@ const ProfileSettings = () => {
     }
   });
 
-  const onSubmit = (data) => {
-    toast.success('Profile updated successfully!');
+  const [isUpdating, setIsUpdating] = React.useState(false);
+
+  const onSubmit = async (data) => {
+    setIsUpdating(true);
+    try {
+      const payload = {
+        userName: data.userName,
+        mobile: data.mobile,
+        userRole: role || 'CUSTOMER'
+      };
+      
+      const updatedUser = await userService.update(user.id || user.userId, payload);
+      
+      const storedUserRaw = localStorage.getItem('user');
+      if (storedUserRaw) {
+        const storedUser = JSON.parse(storedUserRaw);
+        const newUser = { ...storedUser, ...updatedUser, id: user.id || user.userId, userId: user.id || user.userId };
+        localStorage.setItem('user', JSON.stringify(newUser));
+      }
+      
+      toast.success('Profile updated successfully!');
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update profile.');
+      console.error(err);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   return (
@@ -72,8 +99,8 @@ const ProfileSettings = () => {
                 </Row>
 
                 <div className="d-flex justify-content-end mt-4">
-                  <Button variant="primary" type="submit" className="fw-bold px-4">
-                    Save Changes
+                  <Button variant="primary" type="submit" className="fw-bold px-4" disabled={isUpdating}>
+                    {isUpdating ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
               </Form>
