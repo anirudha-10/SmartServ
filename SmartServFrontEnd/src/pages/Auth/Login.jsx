@@ -42,11 +42,14 @@ const Login = () => {
   const onSubmit = async (data) => {
     setAuthError('');
     try {
-      await login(data.email, data.password, selectedRole);
+      const result = await login(data.email, data.password, selectedRole);
+      if (result && result.success === false) {
+        throw new Error(result.message || 'Invalid email or password. Please try again.');
+      }
       toast.success(`${selectedRole} logged in successfully!`);
       navigate('/');
     } catch (err) {
-      setAuthError(err.response?.data?.message || 'Invalid email or password. Please try again.');
+      setAuthError(err.message || err.response?.data?.message || 'Invalid email or password. Please try again.');
     }
   };
 
