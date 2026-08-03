@@ -146,9 +146,9 @@ public class JobCardServiceImpl implements JobCardService {
 		JobCard jobCard = jobCardRepo.findById(jobCardId)
 				.orElseThrow(() -> new ResourceNotFoundException("job card not found"));
 
-		if (jobCard.getJobCardStatus() != JobCardStatus.CREATED) {
+		if (jobCard.getJobCardStatus() == JobCardStatus.COMPLETED || jobCard.getJobCardStatus() == JobCardStatus.CANCELLED) {
 			throw new InvalidOperationException(
-					"job card is not in CREATED status. Current status: " + jobCard.getJobCardStatus());
+					"Cannot start work on COMPLETED or CANCELLED job cards.");
 		}
 
 		if (jobCard.getMechanic() == null) {
@@ -156,6 +156,7 @@ public class JobCardServiceImpl implements JobCardService {
 		}
 
 		jobCard.setJobCardStatus(JobCardStatus.IN_PROGRESS);
+		jobCard.setStartTime(LocalDateTime.now());
 		JobCard updated = jobCardRepo.save(jobCard);
 		return mapResponseToDto(updated);
 	}
@@ -513,6 +514,7 @@ public class JobCardServiceImpl implements JobCardService {
 
 				.status(jobCard.getJobCardStatus()).cancellationReason(jobCard.getCancellationReason())
 				.estimatedCompletionDate(jobCard.getEstimatedCompletionDate())
+				.startTime(jobCard.getStartTime())
 				.completionTime(jobCard.getCompletionTime()).createdAt(jobCard.getCreatedOn())
 				.updatedAt(jobCard.getLastUpdated())
 

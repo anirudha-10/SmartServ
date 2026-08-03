@@ -219,11 +219,10 @@ public class AppointmentServiceImpl implements AppointmentService {
 	public List<AppointmentResponseDto> getRsaAppointments() {
 		List<Appointment> rsaAppointments = appointmentRepo.findByRsaTrue();
 		
-		log.info("Rsa Appointments {}", rsaAppointments.getFirst());
+		log.info("Found {} RSA appointments", rsaAppointments.size());
 		
 		return rsaAppointments.stream().map(this::mapToResponseDto).collect(Collectors.toList());
 	}	
-	
 	
 	@Override
 	public List<AppointmentResponseDto> getPendingRsaAppointments() {
@@ -244,41 +243,39 @@ public class AppointmentServiceImpl implements AppointmentService {
 		return appointmentRepo.countRsaAppointment();
 	}
 
-	
 	private void validateRsaCoordinates(String coordinates) {
 		if(coordinates == null || coordinates.trim().isEmpty()) {
-			throw new IllegalArgumentException("RSA coordinates required.");
+			throw new IllegalArgumentException("RSA location or coordinates required.");
 		}
 		
 		RsaLocationDto location = RsaLocationDto.fromCoordinates(coordinates);
-		if(location == null) {
-			throw new IllegalArgumentException("invalid coordinates format. Excepted: 'latitude, longitude'");	
-		}
-		
-		if(location.getLatitude() < -90 || location.getLatitude() > 90) {
-			throw new IllegalArgumentException("latitude must be between -90 and 90.");
-		}
-		
-		if(location.getLongitude() < -90 || location.getLongitude() > 90) {
-			throw new IllegalArgumentException("longitude must be between -90 and 90.");
+		if(location != null) {
+			if(location.getLatitude() < -90 || location.getLatitude() > 90) {
+				throw new IllegalArgumentException("latitude must be between -90 and 90.");
+			}
+			if(location.getLongitude() < -180 || location.getLongitude() > 180) {
+				throw new IllegalArgumentException("longitude must be between -180 and 180.");
+			}
 		}
 	}
 	
 	private AppointmentResponseDto mapToResponseDto(Appointment appointment) {
+		if (appointment == null) return null;
+
 		Vehicle vehicle = appointment.getVehicleDetails();
-		User customer = vehicle.getCustomer();
+		User customer = vehicle != null ? vehicle.getCustomer() : null;
 		
 		return AppointmentResponseDto.builder()
 				.id(appointment.getId())
-				.vehicleId(vehicle.getId())
-				.licensePlate(vehicle.getLicensePlate())
-				.brand(vehicle.getBrand())
-				.model(vehicle.getModel())
-				.color(vehicle.getColor())
-				.customerId(customer.getId())
-				.customerName(customer.getUserName())
-				.email(customer.getEmail())
-				.mobile(customer.getMobile())
+				.vehicleId(vehicle != null ? vehicle.getId() : null)
+				.licensePlate(vehicle != null ? vehicle.getLicensePlate() : "")
+				.brand(vehicle != null ? vehicle.getBrand() : "")
+				.model(vehicle != null ? vehicle.getModel() : "")
+				.color(vehicle != null ? vehicle.getColor() : "")
+				.customerId(customer != null ? customer.getId() : null)
+				.customerName(customer != null ? customer.getUserName() : "Customer")
+				.email(customer != null ? customer.getEmail() : "")
+				.mobile(customer != null ? customer.getMobile() : "")
 				.requestDate(appointment.getRequestDate())
 				.problemDescription(appointment.getProblemDescription())
 				.customerPhotoUrl(appointment.getCustomerPhotoUrl())
@@ -290,7 +287,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 				.createdAt(appointment.getCreatedOn())
 				.updatedAt(appointment.getLastUpdated())
 				.build();
-		
 	}
 
 

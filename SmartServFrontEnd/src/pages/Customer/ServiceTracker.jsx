@@ -4,7 +4,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { vehicleService } from '../../services/vehicleService';
 import { appointmentService } from '../../services/appointmentService';
+import { invoiceService } from '../../services/invoiceService';
 import EvidenceGallery from './EvidenceGallery';
+import RazorpayModal from '../Invoices/RazorpayModal';
 
 const ServiceTracker = () => {
   const { user } = useAuth();
@@ -14,6 +16,9 @@ const ServiceTracker = () => {
   const [loading, setLoading] = useState(true);
   const [vehicles, setVehicles] = useState([]);
   const [allAppointments, setAllAppointments] = useState([]);
+  const [invoices, setInvoices] = useState([]);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [showPayModal, setShowPayModal] = useState(false);
   
   const [selectedVehicleId, setSelectedVehicleId] = useState('');
   const [selectedAppointmentId, setSelectedAppointmentId] = useState('');
@@ -29,14 +34,21 @@ const ServiceTracker = () => {
     { title: 'Payment', icon: 'bi-credit-card-2-front', desc: 'Paid & Delivered' },
   ];
 
+  const fetchInvoices = async () => {
+    if (!user?.id) return;
+    const invList = await invoiceService.getByCustomer(user.id);
+    setInvoices(invList || []);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       if (!user?.id) return;
       try {
         setLoading(true);
-        const [userVehicles, userAppts] = await Promise.all([
+        const [userVehicles, userAppts, userInvoices] = await Promise.all([
           vehicleService.getByCustomerId(user.id),
-          appointmentService.getByCustomerId(user.id)
+          appointmentService.getByCustomerId(user.id),
+          invoiceService.getByCustomer(user.id)
         ]);
 
         const vList = userVehicles || [];
@@ -44,6 +56,7 @@ const ServiceTracker = () => {
 
         setVehicles(vList);
         setAllAppointments(aList);
+        setInvoices(userInvoices || []);
 
         const query = new URLSearchParams(location.search);
         const qVehicleId = query.get('vehicleId');
@@ -82,6 +95,9 @@ const ServiceTracker = () => {
     || vehicleAppointments[0] 
     || null;
 
+  // Find matching invoice if any
+  const currentInvoice = invoices.find(inv => inv.jobCardId === activeAppt?.jobCardId || inv.jobCard?.id === activeAppt?.jobCardId);
+
   // Selected vehicle object
   const currentVehicle = vehicles.find(v => String(v.vehicleId || v.id) === String(selectedVehicleId)) 
     || (activeAppt ? { brand: activeAppt.brand || activeAppt.make, model: activeAppt.model, licensePlate: activeAppt.licensePlate } : null);
@@ -89,9 +105,11 @@ const ServiceTracker = () => {
   // Compute step index
   let activeStep = 0;
   if (activeAppt) {
-    if (activeAppt.status === 'APPROVED') activeStep = 1;
-    else if (activeAppt.status === 'IN_PROGRESS') activeStep = 4;
+    if (currentInvoice?.paymentStatus === 'PAID') activeStep = 7;
+    else if (currentInvoice) activeStep = 6;
     else if (activeAppt.status === 'COMPLETED') activeStep = 5;
+    else if (activeAppt.status === 'IN_PROGRESS') activeStep = 4;
+    else if (activeAppt.status === 'APPROVED') activeStep = 1;
     else activeStep = 0;
   }
 
@@ -220,11 +238,23 @@ const ServiceTracker = () => {
                   License Plate: {currentVehicle?.licensePlate?.toUpperCase() || 'N/A'} • Booking #{activeAppt.id}
                 </p>
               </div>
-              <div className="text-md-end">
-                <div className="small text-white-50 text-uppercase fw-semibold mb-1">Service Status</div>
-                <Badge bg={activeAppt.status === 'APPROVED' ? 'success' : activeAppt.status === 'IN_PROGRESS' ? 'info' : 'warning'} className="px-3 py-2 fs-6">
-                  {activeAppt.status || 'PENDING'}
-                </Badge>
+              <div className="text-md-end d-flex flex-column align-items-md-end gap-2">
+                <div>
+                  <div className="small text-white-50 text-uppercase fw-semibold mb-1">Service Status</div>
+                  <Badge bg={activeAppt.status === 'APPROVED' ? 'success' : activeAppt.status === 'IN_PROGRESS' ? 'info' : 'warning'} className="px-3 py-2 fs-6">
+                    {activeAppt.status || 'PENDING'}
+                  </Badge>
+                </div>
+                {currentInvoice && currentInvoice.paymentStatus !== 'PAID' && (
+                  <Button 
+                    variant="warning" 
+                    size="sm" 
+                    className="fw-bold text-dark border-0 shadow-sm"
+                    onClick={() => { setSelectedInvoice(currentInvoice); setShowPayModal(true); }}
+                  >
+                    <i className="bi bi-credit-card-2-front me-1"></i> Pay Invoice (₹{parseFloat(currentInvoice.totalAmount || 0).toFixed(2)})
+                  </Button>
+                )}
               </div>
             </Card.Body>
           </Card>
@@ -327,6 +357,15 @@ const ServiceTracker = () => {
             </Card>
           </Tab.Container>
         </>
+      )}
+
+      {selectedInvoice && (
+        <RazorpayModal
+          invoice={selectedInvoice}
+          show={showPayModal}
+          onHide={() => setShowPayModal(false)}
+          onSuccess={fetchInvoices}
+        />
       )}
     </div>
   );

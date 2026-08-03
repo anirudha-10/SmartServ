@@ -28,8 +28,9 @@ A modern, responsive, role-based Web Application built with **React 19**, **Vite
 ### 👤 Customer Features
 - **Account Registration & Role Switcher**: Register as Customer, Service Manager, or Service Mechanic.
 - **Multi-Vehicle Management**: Add, update, and manage multiple vehicles (License Plate, Brand/Make, Model, Color).
-- **Service & RSA Booking**: Book regular service appointments or request emergency Roadside Assistance (RSA) with location tracking.
-- **Live Multi-Vehicle Service Tracker**: Switch between owned vehicles via interactive dropdown to monitor live service lifecycle progress, job card breakdowns, and before/after image evidence.
+- **Service & RSA Booking**: Book regular service appointments or request emergency Roadside Assistance (RSA) with live GPS coordinate acquisition.
+- **Live Multi-Vehicle Service Tracker**: Switch between owned vehicles via interactive dropdown to monitor live service lifecycle progress, job card breakdowns, before/after photo evidence, and launch Razorpay Checkout modal for instant invoice payment.
+- **Razorpay Online Payments**: Pay vehicle service invoices directly via Razorpay Standard Checkout SDK (UPI, Cards, NetBanking) with dynamic order verification and currency formatting in INR (`₹`).
 
 ### 👔 Manager Features
 - **Manager Control Center**: Real-time operational metrics for pending approvals, active job cards, low stock alerts, and workshop revenue.
@@ -40,7 +41,9 @@ A modern, responsive, role-based Web Application built with **React 19**, **Vite
 - **Assigned Job Cards**: Track assigned service jobs, start work (`CREATED` → `IN_PROGRESS`), mark tasks completed (`IN_PROGRESS` → `COMPLETED`), and upload photo evidence.
 
 ### 🛡️ Admin Features
-- **User & Inventory Governance**: Full user administration across roles and real-time inventory tracking with low-stock alerts and automatic price formatting.
+- **System Overview Dashboard**: Monitor system metrics (users, vehicles, job cards, total revenue in `₹`) and review recent registered users.
+- **User Management & Soft-Delete**: Full user administration across system roles (Admin, Manager, Mechanic, Customer), create new users, filter active users, and soft-delete user accounts.
+- **Vehicle Registration & Assignment**: Register new vehicles with customer account selection for Admins/Managers and manage existing inventory.
 
 ---
 

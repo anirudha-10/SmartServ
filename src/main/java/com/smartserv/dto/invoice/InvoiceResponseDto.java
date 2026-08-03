@@ -30,6 +30,7 @@ public class InvoiceResponseDto {
 	private Double baseAmount;
 	private Double taxPercentage;
 	private Double taxAmount;
+	private Double totalAmount;
 	
 	private PaymentStatus paymentStatus;
 	private String razorpayOrderId;

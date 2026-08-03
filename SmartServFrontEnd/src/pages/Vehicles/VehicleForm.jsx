@@ -19,9 +19,13 @@ const schema = yup.object({
 const VehicleForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const isEditMode = Boolean(id);
-  const [loading, setLoading] = useState(isEditMode);
+  const [loading, setLoading] = useState(true);
+  const [customersList, setCustomersList] = useState([]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState('');
+
+  const isAdminOrManager = role === 'ADMIN' || role === 'MANAGER' || user?.role === 'ADMIN' || user?.role === 'MANAGER' || user?.userRole === 'ADMIN' || user?.userRole === 'MANAGER';
 
   const {
     register,
@@ -33,49 +37,48 @@ const VehicleForm = () => {
   });
 
   useEffect(() => {
-    if (isEditMode) {
-      const fetchVehicle = async () => {
-        try {
+    const loadInitialData = async () => {
+      try {
+        setLoading(true);
+        if (isAdminOrManager) {
+          const allUsers = await userService.getAll();
+          const customerUsers = (allUsers || []).filter(u => u.userRole === 'CUSTOMER' || u.role === 'CUSTOMER');
+          const listToUse = customerUsers.length > 0 ? customerUsers : (allUsers || []);
+          setCustomersList(listToUse);
+          if (listToUse.length > 0) {
+            setSelectedCustomerId(String(listToUse[0].userId || listToUse[0].id));
+          }
+        } else if (user) {
+          setSelectedCustomerId(String(user.userId || user.id));
+        }
+
+        if (isEditMode) {
           const data = await vehicleService.getById(id);
           setValue('licensePlate', data.licensePlate || '');
           setValue('brand', data.brand || data.make || '');
           setValue('model', data.model || '');
           setValue('color', data.color || '');
-        } catch (error) {
-          toast.error('Failed to load vehicle details');
-          navigate('/vehicles');
-        } finally {
-          setLoading(false);
+          if (data.customerId) {
+            setSelectedCustomerId(String(data.customerId));
+          }
         }
-      };
-      fetchVehicle();
-    }
-  }, [id, isEditMode, setValue, navigate]);
+      } catch (error) {
+        console.warn('Vehicle form init error:', error);
+        toast.error('Failed to load form details');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadInitialData();
+  }, [id, isEditMode, isAdminOrManager, user, setValue]);
 
   const onSubmit = async (data) => {
     try {
-      let targetCustomerId = user?.userId || user?.id;
-
-      // Robust fallback resolution for customer ID
-      if (!targetCustomerId) {
-        try {
-          const customers = await userService.getCustomers();
-          if (customers && customers.length > 0) {
-            const match = customers.find(c =>
-              (user?.email && c.email?.toLowerCase() === user.email.toLowerCase()) ||
-              (user?.userName && c.userName?.toLowerCase() === user.userName.toLowerCase())
-            );
-            if (match) {
-              targetCustomerId = match.userId || match.id;
-            }
-          }
-        } catch (e) {
-          console.warn('Customer list resolution warning:', e);
-        }
-      }
+      let targetCustomerId = selectedCustomerId || user?.userId || user?.id;
 
       if (!targetCustomerId) {
-        toast.error('Unable to identify customer account. Please log in again.');
+        toast.error('Please select a customer account to assign this vehicle.');
         return;
       }
 
@@ -89,10 +92,10 @@ const VehicleForm = () => {
         toast.success('Vehicle updated successfully!');
       } else {
         const createPayload = {
-          licensePlate: data.licensePlate,
-          brand: data.brand,
-          model: data.model,
-          color: data.color,
+          licensePlate: data.licensePlate.trim().toUpperCase(),
+          brand: data.brand.trim(),
+          model: data.model.trim(),
+          color: data.color.trim(),
           customerId: Number(targetCustomerId)
         };
         await vehicleService.create(createPayload);
@@ -100,17 +103,13 @@ const VehicleForm = () => {
       }
       navigate('/vehicles');
     } catch (error) {
+      console.error('Save vehicle error:', error);
       let msg = 'Failed to save vehicle';
       if (error.response?.data) {
         if (typeof error.response.data === 'string') {
           msg = error.response.data;
         } else if (error.response.data.message) {
           msg = error.response.data.message;
-        } else if (typeof error.response.data === 'object') {
-          const values = Object.values(error.response.data);
-          if (values.length > 0) {
-            msg = values.join(', ');
-          }
         }
       }
       toast.error(msg);
@@ -138,12 +137,36 @@ const VehicleForm = () => {
         <Card.Body className="p-4">
           <Form onSubmit={handleSubmit(onSubmit)}>
             <Row className="g-3">
+              {isAdminOrManager && !isEditMode && (
+                <Col md={12}>
+                  <Form.Group className="mb-2">
+                    <Form.Label className="fw-semibold">Assign to Customer Account</Form.Label>
+                    <Form.Select 
+                      value={selectedCustomerId} 
+                      onChange={(e) => setSelectedCustomerId(e.target.value)}
+                      className="fw-medium"
+                      required
+                    >
+                      <option value="" disabled>-- Select Customer Owner --</option>
+                      {customersList.map((c) => {
+                        const cId = c.userId || c.id;
+                        return (
+                          <option key={cId} value={cId}>
+                            {c.userName} ({c.email}) {c.userRole ? `— ${c.userRole}` : ''}
+                          </option>
+                        );
+                      })}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+              )}
+
               <Col md={6}>
                 <Form.Group>
                   <Form.Label className="fw-semibold">License Plate</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="e.g. ABCfkfk"
+                    placeholder="e.g. MH12AB1234"
                     disabled={isEditMode}
                     {...register('licensePlate')}
                     isInvalid={!!errors.licensePlate}
@@ -156,7 +179,7 @@ const VehicleForm = () => {
                   <Form.Label className="fw-semibold">Brand / Make</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="e.g. TATA, Honda, Toyota"
+                    placeholder="e.g. Tata, Honda, Toyota"
                     {...register('brand')}
                     isInvalid={!!errors.brand}
                   />
@@ -168,7 +191,7 @@ const VehicleForm = () => {
                   <Form.Label className="fw-semibold">Model</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="e.g. SLVR, Civic, Harrier"
+                    placeholder="e.g. Nexon, Civic, Fortuner"
                     {...register('model')}
                     isInvalid={!!errors.model}
                   />
@@ -180,7 +203,7 @@ const VehicleForm = () => {
                   <Form.Label className="fw-semibold">Vehicle Color</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="e.g. Red, Black, Silver"
+                    placeholder="e.g. White, Black, Red"
                     {...register('color')}
                     isInvalid={!!errors.color}
                   />

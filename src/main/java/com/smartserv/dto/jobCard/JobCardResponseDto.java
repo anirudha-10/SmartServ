@@ -37,6 +37,7 @@ public class JobCardResponseDto {
 	private JobCardStatus status;
 	private String cancellationReason;
 	private LocalDate estimatedCompletionDate;
+	private LocalDateTime startTime;
 	private LocalDateTime completionTime;
 	
 	private List<JobCardItemDto> items;

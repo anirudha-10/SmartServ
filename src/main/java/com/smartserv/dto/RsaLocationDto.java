@@ -22,8 +22,11 @@ public class RsaLocationDto {
 		}
 
 		try {
-			return new RsaLocationDto(Double.parseDouble(parts[0].trim()), Double.parseDouble(parts[1].trim()));
-		} catch (NumberFormatException e) {
+			String latStr = parts[0].replaceAll("[^0-9.-]", "").trim();
+			String lngStr = parts[1].replaceAll("[^0-9.-]", "").trim();
+			if (latStr.isEmpty() || lngStr.isEmpty()) return null;
+			return new RsaLocationDto(Double.parseDouble(latStr), Double.parseDouble(lngStr));
+		} catch (Exception e) {
 			return null;
 		}
 	}

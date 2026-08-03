@@ -42,7 +42,11 @@ export const jobCardService = {
   },
 
   addItem: async (id, dto) => {
-    const response = await api.post(`/job_cards/${id}/items`, dto);
+    const payload = {
+      inventoryItemId: Number(dto.inventoryItemId || dto.inventoryId),
+      quantity: Number(dto.quantity || dto.quantityUsed || 1)
+    };
+    const response = await api.post(`/job_cards/${id}/items`, payload);
     return response.data;
   },
 

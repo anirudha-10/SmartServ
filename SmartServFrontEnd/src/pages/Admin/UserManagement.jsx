@@ -58,20 +58,28 @@ const UserManagement = () => {
   };
 
   const handleDelete = async (id) => {
+    const targetId = Number(id);
+    if (!targetId || isNaN(targetId)) {
+      toast.error('Invalid user ID');
+      return;
+    }
     if (window.confirm('Are you sure you want to remove this user?')) {
       try {
-        await userService.delete(id);
+        await userService.delete(targetId);
         toast.success('User removed.');
         fetchUsers();
       } catch (err) {
-        toast.error('Failed to delete user.');
+        console.error('User delete error:', err);
+        toast.error(err.response?.data?.message || 'Failed to delete user.');
       }
     }
   };
 
+  const activeUsersOnly = users.filter(u => u.isActive !== false && u.active !== false);
+
   const filteredUsers = activeRoleFilter === 'ALL' 
-    ? users 
-    : users.filter(u => u.userRole === activeRoleFilter);
+    ? activeUsersOnly 
+    : activeUsersOnly.filter(u => u.userRole === activeRoleFilter);
 
   const getRoleBadge = (role) => {
     switch (role) {
@@ -131,23 +139,26 @@ const UserManagement = () => {
                     <td colSpan={5} className="text-center py-4 text-muted">No users found for this role.</td>
                   </tr>
                 ) : (
-                  filteredUsers.map((u) => (
-                    <tr key={u.id}>
-                      <td className="ps-4 align-middle fw-medium">{u.userName}</td>
-                      <td className="align-middle">{u.email}</td>
-                      <td className="align-middle">{u.mobile}</td>
-                      <td className="align-middle">
-                        <Badge bg={getRoleBadge(u.userRole)} className="px-2 py-1">
-                          {u.userRole}
-                        </Badge>
-                      </td>
-                      <td className="text-end pe-4 align-middle">
-                        <Button variant="light" size="sm" className="text-danger border" onClick={() => handleDelete(u.id)}>
-                          <i className="bi bi-trash"></i>
-                        </Button>
-                      </td>
-                    </tr>
-                  ))
+                  filteredUsers.map((u) => {
+                    const targetId = u.userId || u.id;
+                    return (
+                      <tr key={targetId}>
+                        <td className="ps-4 align-middle fw-medium">{u.userName}</td>
+                        <td className="align-middle">{u.email}</td>
+                        <td className="align-middle">{u.mobile}</td>
+                        <td className="align-middle">
+                          <Badge bg={getRoleBadge(u.userRole || u.role)} className="px-2 py-1">
+                            {u.userRole || u.role}
+                          </Badge>
+                        </td>
+                        <td className="text-end pe-4 align-middle">
+                          <Button variant="light" size="sm" className="text-danger border" onClick={() => handleDelete(targetId)}>
+                            <i className="bi bi-trash"></i>
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </Table>

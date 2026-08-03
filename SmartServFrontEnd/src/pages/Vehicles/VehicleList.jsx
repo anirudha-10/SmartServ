@@ -15,9 +15,12 @@ const VehicleList = () => {
     try {
       setLoading(true);
       let data = [];
-      if (role === 'CUSTOMER') {
-        if (user?.id) {
-          data = await vehicleService.getByCustomerId(user.id);
+      const isCustomer = role === 'CUSTOMER' || user?.role === 'CUSTOMER' || user?.userRole === 'CUSTOMER';
+      const customerId = user?.id || user?.userId;
+
+      if (isCustomer) {
+        if (customerId) {
+          data = await vehicleService.getByCustomerId(customerId);
         } else {
           data = [];
         }

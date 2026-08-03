@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<UserResponseDto> getUsers() {
-		List<User> users = userRepo.findAll();
+		List<User> users = userRepo.findByIsActiveTrue();
 
 		return users.stream().map(this::mapUserToResponseDto).collect(Collectors.toList());
 	}
@@ -115,20 +115,20 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<UserResponseDto> getAllCustomers() {
-		List<User> customers = userRepo.findByUserRole(Role.CUSTOMER);
+		List<User> customers = userRepo.findByUserRoleAndIsActiveTrue(Role.CUSTOMER);
 		return customers.stream().map(this::mapUserToResponseDto).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<UserResponseDto> getAllManagers() {
-		List<User> managers = userRepo.findByUserRole(Role.MANAGER);
+		List<User> managers = userRepo.findByUserRoleAndIsActiveTrue(Role.MANAGER);
 
 		return managers.stream().map(this::mapUserToResponseDto).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<UserResponseDto> getAllMechanics() {
-		List<User> mechanics = userRepo.findByUserRole(Role.MECHANIC);
+		List<User> mechanics = userRepo.findByUserRoleAndIsActiveTrue(Role.MECHANIC);
 		return mechanics.stream().map(this::mapUserToResponseDto).collect(Collectors.toList());
 	}
 
@@ -166,7 +166,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<UserResponseDto> getMechanicsUnderManager(Long managerId) {
-		List<User> mechanics = userRepo.findByManagerId(managerId);
+		List<User> mechanics = userRepo.findByManagerIdAndIsActiveTrue(managerId);
 
 		return mechanics.stream().map(this::mapUserToResponseDto).collect(Collectors.toList());
 	}
@@ -202,6 +202,7 @@ public class UserServiceImpl implements UserService {
 	private UserResponseDto mapUserToResponseDto(User user) {
 		UserResponseDto response = mapper.map(user, UserResponseDto.class);
 		response.setUserId(user.getId());
+		response.setIsActive(user.isActive());
 		if (user.getManager() != null) {
 			response.setManagerId(user.getManager().getId());
 			response.setManagerName(user.getManager().getUserName());

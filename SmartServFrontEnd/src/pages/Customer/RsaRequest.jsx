@@ -5,6 +5,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { vehicleService } from '../../services/vehicleService';
 import { appointmentService } from '../../services/appointmentService';
+import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,6 +18,7 @@ const schema = yup.object({
 
 const RsaRequest = () => {
   const navigate = useNavigate();
+  const { user, role } = useAuth();
   const [vehicles, setVehicles] = useState([]);
   const [gettingLocation, setGettingLocation] = useState(false);
 
@@ -32,23 +34,32 @@ const RsaRequest = () => {
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        const data = await vehicleService.getAll();
-        setVehicles(data);
+        const isCustomer = role === 'CUSTOMER' || user?.role === 'CUSTOMER' || user?.userRole === 'CUSTOMER';
+        const customerId = user?.id || user?.userId;
+        let data = [];
+        if (isCustomer && customerId) {
+          data = await vehicleService.getByCustomerId(customerId);
+        } else {
+          data = await vehicleService.getAll();
+        }
+        setVehicles(data || []);
       } catch (err) {
         toast.error('Failed to load vehicles');
       }
     };
-    fetchVehicles();
-  }, []);
+    if (user) {
+      fetchVehicles();
+    }
+  }, [user, role]);
 
   const handleFetchCurrentLocation = () => {
     if ('geolocation' in navigator) {
       setGettingLocation(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const loc = `Lat: ${position.coords.latitude.toFixed(4)}, Long: ${position.coords.longitude.toFixed(4)}`;
+          const loc = `${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`;
           setValue('location', loc);
-          toast.success('Location acquired!');
+          toast.success('GPS Location acquired!');
           setGettingLocation(false);
         },
         (error) => {
@@ -63,18 +74,25 @@ const RsaRequest = () => {
 
   const onSubmit = async (data) => {
     try {
+      const todayStr = new Date().toISOString().split('T')[0];
+      let coords = data.location;
+      if (!coords.includes(',')) {
+        coords = '18.5204, 73.8567';
+      }
+
       await appointmentService.create({
-        vehicleId: data.vehicleId,
-        scheduledDate: new Date().toISOString().split('T')[0],
-        scheduledTime: '00:00',
-        serviceType: 'RSA_EMERGENCY',
-        description: `[RSA LOCATION: ${data.location}] ${data.description}`,
+        vehicleId: Number(data.vehicleId),
+        requestDate: todayStr,
+        description: `[RSA Location: ${data.location}] [Phone: ${data.contactPhone}] ${data.description}`,
+        rsa: true,
+        rsaCoordinates: coords,
       });
 
       toast.success('Roadside Assistance Request Dispatched! Help is on the way.');
       navigate('/customer');
     } catch (err) {
-      toast.error('Failed to dispatch RSA request. Please call hotline directly.');
+      console.error('RSA dispatch error:', err);
+      toast.error(err?.response?.data?.message || err?.response?.data || 'Failed to dispatch RSA request.');
     }
   };
 

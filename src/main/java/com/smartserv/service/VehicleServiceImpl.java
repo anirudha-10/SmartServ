@@ -38,11 +38,6 @@ public class VehicleServiceImpl implements VehicleService {
 		User customer = userRepo.findById(dto.getCustomerId()).orElseThrow(
 				() -> new ResourceNotFoundException("Customer does not exist with the given customer id: " + dto.getCustomerId()));
 
-		if (customer.getUserRole() != Role.CUSTOMER) {
-			throw new RuntimeException("Error: User with ID: " + dto.getCustomerId()
-					+ " is not a customer. Only customers can own a vehicle.");
-		}
-
 		Vehicle vehicle = new Vehicle();
 		vehicle.setLicensePlate(dto.getLicensePlate());
 		vehicle.setBrand(dto.getBrand() != null ? dto.getBrand() : dto.getBrand());
@@ -106,12 +101,11 @@ public class VehicleServiceImpl implements VehicleService {
 
 	@Override
 	public List<VehicleResponseDto> getCustomerVehicles(Long customerId) {
+		if (customerId == null) return java.util.Collections.emptyList();
 
-		User customer = userRepo.findById(customerId)
-				.orElseThrow(() -> new ResourceNotFoundException("user with specified id does not exist."));
-
-		if (customer.getUserRole() != Role.CUSTOMER) {
-			throw new RuntimeException("Role of user with id " + customer.getId() + " is not customer.");
+		User customer = userRepo.findById(customerId).orElse(null);
+		if (customer == null) {
+			return java.util.Collections.emptyList();
 		}
 
 		List<Vehicle> vehicles = vehicleRepo.findByCustomerIdAndIsActiveTrue(customerId);
