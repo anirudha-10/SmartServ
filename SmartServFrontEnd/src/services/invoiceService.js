@@ -1,20 +1,36 @@
 import api from '../api/axiosConfig';
 
+const normalizeInvoice = (inv) => {
+  if (!inv) return inv;
+  const base = Number(inv.baseAmount || 0);
+  const tax = Number(inv.taxAmount || 0);
+  const total = inv.totalAmount !== undefined && inv.totalAmount !== null && Number(inv.totalAmount) > 0
+    ? Number(inv.totalAmount)
+    : (base + tax);
+
+  return {
+    ...inv,
+    totalAmount: total,
+    customerName: inv.customerName || inv.customer?.userName || 'Customer'
+  };
+};
+
 export const invoiceService = {
   generate: async (jobCardId) => {
     const response = await api.post(`/invoices/generate/job_card/${jobCardId}`);
-    return response.data;
+    return normalizeInvoice(response.data);
   },
 
   getById: async (id) => {
     const response = await api.get(`/invoices/${id}`);
-    return response.data;
+    return normalizeInvoice(response.data);
   },
 
   getAll: async () => {
     try {
       const response = await api.get('/invoices');
-      return response.data || [];
+      const data = response.data || [];
+      return data.map(normalizeInvoice);
     } catch (error) {
       return [];
     }
@@ -24,7 +40,8 @@ export const invoiceService = {
     if (!customerId) return [];
     try {
       const response = await api.get(`/invoices/customer/${customerId}`);
-      return response.data || [];
+      const data = response.data || [];
+      return data.map(normalizeInvoice);
     } catch (error) {
       console.warn('Customer has no invoices or fetch error:', error);
       return [];

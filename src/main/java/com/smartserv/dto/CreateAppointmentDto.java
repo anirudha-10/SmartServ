@@ -3,7 +3,7 @@ package com.smartserv.dto;
 import java.time.LocalDate;
 
 import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -16,7 +16,7 @@ public class CreateAppointmentDto {
 	private Long vehicleId;
 	
 	@NotNull(message = "Appointment date cannot be null.")
-	@Future(message = "Appointment date must be in future.")
+	@FutureOrPresent(message = "Appointment date must be today or in the future.")
 	private LocalDate requestDate;
 	
 	@NotBlank(message = "Description cannot be blank.")

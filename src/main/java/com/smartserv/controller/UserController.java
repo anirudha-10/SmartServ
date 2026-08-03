@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.smartserv.dto.CreateUserDto;
 import com.smartserv.dto.UpdateUserDto;
 import com.smartserv.dto.UserResponseDto;
 import com.smartserv.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @RestController
 @RequestMapping("/api/users")
@@ -23,15 +26,17 @@ import lombok.AllArgsConstructor;
 public class UserController {
 	private final UserService userService;
 
-	@GetMapping("/getUsers")
-	public ResponseEntity<?> getUsers() {
-		System.out.println("in user controller get users");
-
-		return ResponseEntity.ok(userService.getUsers());
-
+	@PostMapping
+	public ResponseEntity<?> createUser(@RequestBody @Valid CreateUserDto dto) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(dto));
 	}
 
-	@GetMapping("/getUserById/{userId}")
+	@GetMapping({"", "/getUsers"})
+	public ResponseEntity<?> getUsers() {
+		return ResponseEntity.ok(userService.getUsers());
+	}
+
+	@GetMapping({"/{userId}", "/getUserById/{userId}"})
 	public ResponseEntity<?> findById(@PathVariable Long userId) {
 		return ResponseEntity.ok(userService.getUserById(userId));
 	}
@@ -41,7 +46,7 @@ public class UserController {
 		return ResponseEntity.ok(userService.updateUser(userId, dto));
 	}
 
-	@DeleteMapping("{userId}")
+	@DeleteMapping({"/{userId}", "/deleteUser/{userId}"})
 	public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
 		userService.deleteUser(userId);
 		return ResponseEntity.noContent().build();

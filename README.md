@@ -463,11 +463,11 @@ All entities inherit from `BaseEntity`, which provides:
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/users` | Register a new user |
-| `GET` | `/api/users/getUsers` | Get all users |
-| `GET` | `/api/users/getUserById/{userId}` | Get user by ID |
+| `POST` | `/api/users` | Register/create a new user (with `@Valid` DTO validation) |
+| `GET` | `/api/users` (or `/api/users/getUsers`) | Get all active users |
+| `GET` | `/api/users/{userId}` (or `/api/users/getUserById/{userId}`) | Get user by ID |
 | `PUT` | `/api/users/{userId}` | Update user details |
-| `DELETE` | `/api/users/{userId}` | Soft-delete user (set `isActive = false`) |
+| `DELETE` | `/api/users/{userId}` (or `/api/users/deleteUser/{userId}`) | Soft-delete user (set `isActive = false`) |
 | `GET` | `/api/users/active` | Get all active users |
 | `GET` | `/api/users/customers` | Get all customers |
 | `GET` | `/api/users/customer/{customerId}` | Get customer by ID |

@@ -27,13 +27,26 @@ const MechanicDashboard = () => {
   const fetchMechanicJobs = async () => {
     try {
       setLoading(true);
-      const [jobsData, invData] = await Promise.all([
-        jobCardService.getAll().catch(() => []),
-        inventoryService.getAll().catch(() => []),
-      ]);
+      const currentMechanicId = user?.userId || user?.id;
 
-      setJobCards(jobsData);
-      setInventoryList(invData);
+      let jobsData = [];
+      if (currentMechanicId) {
+        try {
+          jobsData = await jobCardService.getByMechanic(currentMechanicId);
+        } catch (e) {
+          const allCards = await jobCardService.getAll().catch(() => []);
+          jobsData = (allCards || []).filter(jc => 
+            String(jc.mechanicId || jc.mechanic?.id || jc.mechanic?.userId) === String(currentMechanicId)
+          );
+        }
+      } else {
+        jobsData = await jobCardService.getAll().catch(() => []);
+      }
+
+      const invData = await inventoryService.getAll().catch(() => []);
+
+      setJobCards(jobsData || []);
+      setInventoryList(invData || []);
     } catch (err) {
       toast.error('Failed to load mechanic dashboard');
     } finally {
@@ -43,7 +56,7 @@ const MechanicDashboard = () => {
 
   useEffect(() => {
     fetchMechanicJobs();
-  }, []);
+  }, [user]);
 
   const handleStartJob = async (id) => {
     try {
@@ -75,8 +88,8 @@ const MechanicDashboard = () => {
     try {
       setSubmitting(true);
       await jobCardService.addItem(selectedJob.id, {
-        inventoryId: Number(selectedPartId),
-        quantityUsed: Number(partQty),
+        inventoryItemId: Number(selectedPartId),
+        quantity: Number(partQty),
       });
 
       toast.success('Part added to Job Card!');
@@ -120,6 +133,12 @@ const MechanicDashboard = () => {
 
   const activeJobs = jobCards.filter(j => j.status === 'IN_PROGRESS' || j.status === 'ASSIGNED' || j.status === 'CREATED');
   const completedJobs = jobCards.filter(j => j.status === 'COMPLETED');
+
+  const formatTitle = (brand, model) => {
+    const full = `${brand || ''} ${model || ''}`.trim();
+    if (!full) return 'Vehicle';
+    return full.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+  };
 
   if (loading) {
     return (
@@ -213,50 +232,73 @@ const MechanicDashboard = () => {
                         <td colSpan={5} className="text-center py-4 text-muted">No active jobs assigned currently.</td>
                       </tr>
                     ) : (
-                      activeJobs.map((job) => (
-                        <tr key={job.id}>
-                          <td className="ps-4 align-middle fw-bold text-primary">#JC-{job.id}</td>
-                          <td className="align-middle fw-medium">
-                            {job.appointment?.vehicle?.make} {job.appointment?.vehicle?.model} <br/>
-                            <small className="text-muted">{job.appointment?.vehicle?.licensePlate}</small>
-                          </td>
-                          <td className="align-middle">
-                            <Badge bg={job.status === 'IN_PROGRESS' ? 'primary' : 'warning'} className="px-2 py-1">
-                              {job.status}
-                            </Badge>
-                          </td>
-                          <td className="align-middle text-truncate" style={{ maxWidth: '180px' }}>{job.remarks}</td>
-                          <td className="text-end pe-4 align-middle">
-                            {job.status !== 'IN_PROGRESS' ? (
-                              <Button variant="primary" size="sm" className="me-2" onClick={() => handleStartJob(job.id)}>
-                                <i className="bi bi-play-fill me-1"></i>Start Work
-                              </Button>
-                            ) : (
-                              <>
-                                <Button 
-                                  variant="outline-info" 
-                                  size="sm" 
-                                  className="me-2" 
-                                  onClick={() => { setSelectedJob(job); setShowPartModal(true); }}
-                                >
-                                  <i className="bi bi-plus-circle me-1"></i>Add Part
+                      activeJobs.map((job) => {
+                        const brandName = job.brand || job.make || job.appointment?.vehicle?.brand || job.appointment?.vehicle?.make || '';
+                        const modelName = job.model || job.appointment?.vehicle?.model || '';
+                        const plateNo = job.licensePlate || job.appointment?.vehicle?.licensePlate || '';
+                        const custName = job.customerName || job.appointment?.customerName || 'Customer';
+                        const desc = job.problemDescription || job.remarks || 'N/A';
+
+                        return (
+                          <tr key={job.id}>
+                            <td className="ps-4 align-middle fw-bold text-primary">#JC-{job.id}</td>
+                            <td className="align-middle">
+                              <div className="fw-bold text-dark">{formatTitle(brandName, modelName)}</div>
+                              <div className="small text-muted">{custName}</div>
+                              {plateNo && (
+                                <span className="badge bg-light text-secondary border font-monospace mt-1 px-2 py-1">
+                                  {plateNo.toUpperCase()}
+                                </span>
+                              )}
+                            </td>
+                            <td className="align-middle">
+                              <Badge bg={job.status === 'IN_PROGRESS' ? 'primary' : 'warning'} className="px-2 py-1">
+                                {job.status}
+                              </Badge>
+                              {job.startTime && (
+                                <div className="small text-muted mt-1" style={{ fontSize: '0.75rem' }}>
+                                  <i className="bi bi-clock me-1"></i>
+                                  {new Date(job.startTime).toLocaleString()}
+                                </div>
+                              )}
+                            </td>
+                            <td className="align-middle">
+                              <div className="text-body small fw-medium text-wrap" style={{ maxWidth: '200px' }}>
+                                {desc}
+                              </div>
+                            </td>
+                            <td className="text-end pe-4 align-middle">
+                              {job.status !== 'IN_PROGRESS' ? (
+                                <Button variant="primary" size="sm" className="me-2" onClick={() => handleStartJob(job.id)}>
+                                  <i className="bi bi-play-fill me-1"></i>Start Work
                                 </Button>
-                                <Button 
-                                  variant="outline-secondary" 
-                                  size="sm" 
-                                  className="me-2" 
-                                  onClick={() => { setSelectedJob(job); setShowEvidenceModal(true); }}
-                                >
-                                  <i className="bi bi-camera me-1"></i>Photo
-                                </Button>
-                                <Button variant="success" size="sm" onClick={() => handleCompleteJob(job.id)}>
-                                  <i className="bi bi-check-circle me-1"></i>Finish
-                                </Button>
-                              </>
-                            )}
-                          </td>
-                        </tr>
-                      ))
+                              ) : (
+                                <>
+                                  <Button 
+                                    variant="outline-info" 
+                                    size="sm" 
+                                    className="me-2" 
+                                    onClick={() => { setSelectedJob(job); setShowPartModal(true); }}
+                                  >
+                                    <i className="bi bi-plus-circle me-1"></i>Add Part
+                                  </Button>
+                                  <Button 
+                                    variant="outline-secondary" 
+                                    size="sm" 
+                                    className="me-2" 
+                                    onClick={() => { setSelectedJob(job); setShowEvidenceModal(true); }}
+                                  >
+                                    <i className="bi bi-camera me-1"></i>Photo
+                                  </Button>
+                                  <Button variant="success" size="sm" onClick={() => handleCompleteJob(job.id)}>
+                                    <i className="bi bi-check-circle me-1"></i>Finish
+                                  </Button>
+                                </>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </Table>
@@ -278,14 +320,34 @@ const MechanicDashboard = () => {
                         <td colSpan={4} className="text-center py-4 text-muted">No completed jobs yet.</td>
                       </tr>
                     ) : (
-                      completedJobs.map((job) => (
-                        <tr key={job.id}>
-                          <td className="ps-4 align-middle fw-bold text-primary">#JC-{job.id}</td>
-                          <td className="align-middle">{job.appointment?.vehicle?.make} {job.appointment?.vehicle?.model}</td>
-                          <td className="align-middle"><Badge bg="success">COMPLETED</Badge></td>
-                          <td className="align-middle">{job.remarks}</td>
-                        </tr>
-                      ))
+                      completedJobs.map((job) => {
+                        const brandName = job.brand || job.make || job.appointment?.vehicle?.brand || job.appointment?.vehicle?.make || '';
+                        const modelName = job.model || job.appointment?.vehicle?.model || '';
+                        const plateNo = job.licensePlate || job.appointment?.vehicle?.licensePlate || '';
+                        const custName = job.customerName || job.appointment?.customerName || 'Customer';
+                        const desc = job.problemDescription || job.remarks || 'N/A';
+
+                        return (
+                          <tr key={job.id}>
+                            <td className="ps-4 align-middle fw-bold text-primary">#JC-{job.id}</td>
+                            <td className="align-middle">
+                              <div className="fw-bold text-dark">{formatTitle(brandName, modelName)}</div>
+                              <div className="small text-muted">{custName}</div>
+                              {plateNo && (
+                                <span className="badge bg-light text-secondary border font-monospace mt-1 px-2 py-1">
+                                  {plateNo.toUpperCase()}
+                                </span>
+                              )}
+                            </td>
+                            <td className="align-middle"><Badge bg="success">COMPLETED</Badge></td>
+                            <td className="align-middle">
+                              <div className="text-body small fw-medium text-wrap" style={{ maxWidth: '200px' }}>
+                                {desc}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </Table>

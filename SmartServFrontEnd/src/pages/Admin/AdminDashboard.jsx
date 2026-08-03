@@ -118,7 +118,7 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <h6 className="text-muted mb-1 small text-uppercase fw-semibold">Total Revenue</h6>
-                <h3 className="fw-bold mb-0">${stats.revenue.toFixed(2)}</h3>
+                <h3 className="fw-bold mb-0">₹{stats.revenue.toFixed(2)}</h3>
               </div>
             </Card.Body>
           </Card>

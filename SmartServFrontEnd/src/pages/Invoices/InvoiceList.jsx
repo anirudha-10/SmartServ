@@ -16,8 +16,15 @@ const InvoiceList = () => {
     try {
       setLoading(true);
       let data = [];
-      if (role === 'CUSTOMER' && user?.id) {
-        data = await invoiceService.getByCustomer(user.id);
+      const isCustomer = role === 'CUSTOMER' || user?.role === 'CUSTOMER' || user?.userRole === 'CUSTOMER';
+      const customerId = user?.id || user?.userId;
+
+      if (isCustomer) {
+        if (customerId) {
+          data = await invoiceService.getByCustomer(customerId);
+        } else {
+          data = [];
+        }
       } else {
         data = await invoiceService.getAll();
       }
@@ -72,6 +79,7 @@ const InvoiceList = () => {
               <tr>
                 <th className="ps-4">Invoice #</th>
                 <th>Job Card #</th>
+                <th>Vehicle Details</th>
                 {role !== 'CUSTOMER' && <th>Customer</th>}
                 <th>Total Amount</th>
                 <th>Payment Status</th>
@@ -81,25 +89,39 @@ const InvoiceList = () => {
             <tbody>
               {invoices.length === 0 ? (
                 <tr>
-                  <td colSpan={role !== 'CUSTOMER' ? 6 : 5} className="text-center py-4 text-muted">
+                  <td colSpan={role !== 'CUSTOMER' ? 7 : 6} className="text-center py-4 text-muted">
                     No invoices found.
                   </td>
                 </tr>
               ) : (
-                invoices.map((inv) => (
-                  <tr key={inv.id}>
-                    <td className="ps-4 align-middle fw-bold text-primary">
-                      {inv.invoiceNumber || `#INV-${inv.id}`}
-                    </td>
-                    <td className="align-middle fw-medium">#JC-{inv.jobCard?.id || inv.jobCardId}</td>
-                    {role !== 'CUSTOMER' && (
-                      <td className="align-middle">
-                        {inv.customer?.userName || 'Customer'}
+                invoices.map((inv) => {
+                  const custName = inv.customerName || inv.customer?.userName || 'Customer';
+                  const amt = inv.totalAmount !== undefined && inv.totalAmount !== null && Number(inv.totalAmount) > 0 
+                    ? Number(inv.totalAmount) 
+                    : (Number(inv.baseAmount || 0) + Number(inv.taxAmount || 0));
+
+                  const vehicleInfo = inv.vehicleBrand 
+                    ? `${inv.vehicleBrand} ${inv.vehicleModel || ''} (${inv.vehicleRegistration || 'N/A'})` 
+                    : 'Car Service';
+
+                  return (
+                    <tr key={inv.id}>
+                      <td className="ps-4 align-middle fw-bold text-primary">
+                        {inv.invoiceNumber || `#INV-${inv.id}`}
                       </td>
-                    )}
-                    <td className="align-middle fw-bold">
-                      ${parseFloat(inv.totalAmount || 0).toFixed(2)}
-                    </td>
+                      <td className="align-middle fw-medium">#JC-{inv.jobCard?.id || inv.jobCardId}</td>
+                      <td className="align-middle text-dark">
+                        <div className="fw-semibold">{inv.vehicleBrand ? `${inv.vehicleBrand} ${inv.vehicleModel || ''}` : 'Vehicle Service'}</div>
+                        {inv.vehicleRegistration && <small className="text-muted font-monospace">{inv.vehicleRegistration}</small>}
+                      </td>
+                      {role !== 'CUSTOMER' && (
+                        <td className="align-middle fw-semibold text-dark">
+                          {custName}
+                        </td>
+                      )}
+                      <td className="align-middle fw-bold text-dark">
+                        ₹{amt.toFixed(2)}
+                      </td>
                     <td className="align-middle">
                       <Badge bg={getPaymentStatusBadge(inv.paymentStatus || 'PENDING')} className="px-2 py-1">
                         {inv.paymentStatus || 'PENDING'}
@@ -110,18 +132,20 @@ const InvoiceList = () => {
                         <Button 
                           variant="success" 
                           size="sm" 
+                          className="fw-semibold px-3"
                           onClick={() => { setSelectedInvoice(inv); setShowPayModal(true); }}
                         >
-                          <i className="bi bi-credit-card me-1"></i>Pay Now
+                          <i className="bi bi-shield-check me-1"></i>Pay via Razorpay
                         </Button>
                       ) : (
-                        <Button variant="outline-secondary" size="sm" onClick={() => toast.info('Invoice receipt printed.')}>
+                        <Button variant="outline-secondary" size="sm" onClick={() => toast.info(`Invoice #${inv.invoiceNumber || inv.id} receipt printed.`)}>
                           <i className="bi bi-printer me-1"></i>Receipt
                         </Button>
                       )}
                     </td>
                   </tr>
-                ))
+                  );
+                })
               )}
             </tbody>
           </Table>

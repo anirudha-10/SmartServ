@@ -59,10 +59,24 @@ const JobCardManager = () => {
         }
       }
 
-      const [cardsData, apptsData] = await Promise.all([
-        jobCardService.getAll().catch(() => []),
-        appointmentService.getAll().catch(() => []),
-      ]);
+      const currentUserId = user?.userId || user?.id;
+      const isMechanicRole = (user?.userRole === 'MECHANIC' || user?.role === 'MECHANIC');
+
+      let cardsData = [];
+      if (isMechanicRole && currentUserId) {
+        try {
+          cardsData = await jobCardService.getByMechanic(currentUserId);
+        } catch (e) {
+          const allCards = await jobCardService.getAll().catch(() => []);
+          cardsData = (allCards || []).filter(jc => 
+            String(jc.mechanicId || jc.mechanic?.id || jc.mechanic?.userId) === String(currentUserId)
+          );
+        }
+      } else {
+        cardsData = await jobCardService.getAll().catch(() => []);
+      }
+
+      const apptsData = await appointmentService.getAll().catch(() => []);
 
       setJobCards(cardsData || []);
       setMechanics(managerMechanics || []);
