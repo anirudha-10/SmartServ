@@ -3,14 +3,13 @@ package com.smartserv.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.smartserv.dto.CreateVehicleDto;
 import com.smartserv.dto.VehicleResponseDto;
 import com.smartserv.dto.VehicleUpdateDto;
-import com.smartserv.entity.Role;
 import com.smartserv.entity.User;
 import com.smartserv.entity.Vehicle;
 import com.smartserv.exceptions.ResourceAlreadyExists;
@@ -25,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class VehicleServiceImpl implements VehicleService {
 
-	private final ModelMapper mapper;
 	private final VehicleRepository vehicleRepo;
 	private final UserRepository userRepo;
 
