@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { vehicleService } from '../../services/vehicleService';
 import { appointmentService } from '../../services/appointmentService';
 import { invoiceService } from '../../services/invoiceService';
+import { jobCardService } from '../../services/jobCardService';
 import EvidenceGallery from './EvidenceGallery';
 import RazorpayModal from '../Invoices/RazorpayModal';
 
@@ -22,6 +23,7 @@ const ServiceTracker = () => {
   
   const [selectedVehicleId, setSelectedVehicleId] = useState('');
   const [selectedAppointmentId, setSelectedAppointmentId] = useState('');
+  const [activeJobCard, setActiveJobCard] = useState(null);
 
   const steps = [
     { title: 'Booked', icon: 'bi-calendar-event', desc: 'Appointment Requested' },
@@ -95,8 +97,26 @@ const ServiceTracker = () => {
     || vehicleAppointments[0] 
     || null;
 
+  useEffect(() => {
+    const fetchJobCard = async () => {
+      if (activeAppt && activeAppt.id) {
+        try {
+          const jc = await jobCardService.getByAppointmentId(activeAppt.id);
+          setActiveJobCard(jc);
+        } catch (err) {
+          setActiveJobCard(null);
+        }
+      } else {
+        setActiveJobCard(null);
+      }
+    };
+    fetchJobCard();
+  }, [activeAppt?.id]);
+
   // Find matching invoice if any
-  const currentInvoice = invoices.find(inv => inv.jobCardId === activeAppt?.jobCardId || inv.jobCard?.id === activeAppt?.jobCardId);
+  const currentInvoice = activeJobCard?.id 
+    ? invoices.find(inv => String(inv.jobCardId) === String(activeJobCard.id) || String(inv.jobCard?.id) === String(activeJobCard.id))
+    : null;
 
   // Selected vehicle object
   const currentVehicle = vehicles.find(v => String(v.vehicleId || v.id) === String(selectedVehicleId)) 

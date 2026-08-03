@@ -69,6 +69,7 @@ public class AuthController {
         userData.put("email", user.getEmail());
         userData.put("role", user.getUserRole() != null ? user.getUserRole().name() : "CUSTOMER");
         userData.put("userName", user.getUserName());
+        userData.put("mobile", user.getMobile());
         response.put("user", userData);
 
         return ResponseEntity.ok(response);
