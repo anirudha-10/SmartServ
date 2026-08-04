@@ -52,6 +52,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 		Appointment appointment = new Appointment();
 		appointment.setVehicleDetails(vehicle);
 		appointment.setRequestDate(dto.getRequestDate());
+		appointment.setScheduledTime(dto.getScheduledTime());
 		appointment.setProblemDescription(dto.getDescription());
 		appointment.setCustomerPhotoUrl(dto.getCustomerPhotoUrl());
 		appointment.setRsa(Boolean.TRUE.equals(dto.isRsa()));
@@ -277,6 +278,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 				.email(customer != null ? customer.getEmail() : "")
 				.mobile(customer != null ? customer.getMobile() : "")
 				.requestDate(appointment.getRequestDate())
+				.scheduledTime(appointment.getScheduledTime())
 				.problemDescription(appointment.getProblemDescription())
 				.customerPhotoUrl(appointment.getCustomerPhotoUrl())
 				.isRsa(appointment.isRsa())

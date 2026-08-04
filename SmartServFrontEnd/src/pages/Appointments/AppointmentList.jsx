@@ -4,6 +4,7 @@ import { appointmentService } from '../../services/appointmentService';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { getStatusBadge } from '../../utils/statusColors';
 
 const AppointmentList = () => {
   const [appointments, setAppointments] = useState([]);
@@ -41,17 +42,6 @@ const AppointmentList = () => {
       fetchAppointments();
     } catch (error) {
       toast.error('Failed to update status');
-    }
-  };
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'PENDING': return 'warning';
-      case 'APPROVED': return 'success';
-      case 'REJECTED': return 'danger';
-      case 'CANCELLED': return 'secondary';
-      case 'COMPLETED': return 'info';
-      default: return 'primary';
     }
   };
 

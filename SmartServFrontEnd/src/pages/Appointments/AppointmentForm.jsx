@@ -13,7 +13,6 @@ const schema = yup.object({
   vehicleId: yup.number().typeError('Please select one of your registered vehicles').required('Please select a vehicle'),
   scheduledDate: yup.string().required('Appointment date is required'),
   scheduledTime: yup.string().required('Appointment time slot is required'),
-  serviceType: yup.string().required('Service type is required'),
   description: yup.string().required('Please provide a description'),
 }).required();
 
@@ -56,10 +55,8 @@ const AppointmentForm = () => {
       const payload = {
         vehicleId: Number(data.vehicleId),
         requestDate: data.scheduledDate,
-        scheduledDate: data.scheduledDate,
-        scheduledTime: data.scheduledTime,
-        serviceType: data.serviceType,
-        description: `[Type: ${data.serviceType} at ${data.scheduledTime}] ${data.description}`,
+        scheduledTime: data.scheduledTime + ":00", // Append seconds for LocalTime parsing
+        description: data.description,
         rsa: false
       };
 
@@ -121,18 +118,7 @@ const AppointmentForm = () => {
                   </Form.Group>
                 </Col>
                 
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label className="fw-semibold">Service Category</Form.Label>
-                    <Form.Select {...register('serviceType')} isInvalid={!!errors.serviceType} defaultValue="">
-                      <option value="" disabled>-- Select Service Type --</option>
-                      <option value="GENERAL_SERVICE">General Service & Oil Change</option>
-                      <option value="REPAIR">Brake & Engine Repair</option>
-                      <option value="INSPECTION">Comprehensive Inspection</option>
-                    </Form.Select>
-                    <Form.Control.Feedback type="invalid">{errors.serviceType?.message}</Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
+
 
                 <Col md={6}>
                   <Form.Group>
