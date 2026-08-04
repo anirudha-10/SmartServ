@@ -372,7 +372,10 @@ public class JobCardServiceImpl implements JobCardService {
 
 		List<JobCard> jobCard = jobCardRepo.findByManager(manager);
 
-		return jobCard.stream().map(this::mapResponseToDto).collect(Collectors.toList());
+		return jobCard.stream()
+				.filter(jc -> jc.getJobCardStatus() != JobCardStatus.BILLED)
+				.map(this::mapResponseToDto)
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -443,8 +446,7 @@ public class JobCardServiceImpl implements JobCardService {
 
 	@Override
 	public Long getManagerJobCardCount(Long managerId) {
-
-		return jobCardRepo.countByManagerId(managerId);
+		return jobCardRepo.countByManagerId(managerId) - jobCardRepo.countByManagerIdAndJobCardStatus(managerId, JobCardStatus.BILLED);
 	}
 
 	@Override

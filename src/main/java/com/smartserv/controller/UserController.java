@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.smartserv.dto.CreateUserDto;
 import com.smartserv.dto.UpdateUserDto;
-import com.smartserv.dto.UserResponseDto;
 import com.smartserv.service.UserService;
 
 import jakarta.validation.Valid;

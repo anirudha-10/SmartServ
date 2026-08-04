@@ -38,7 +38,7 @@ A modern, responsive, role-based Web Application built with **React 19**, **Vite
 - **Job Card Creation & Mechanic Assignment**: Create job cards specifying estimated completion dates and assign technicians specifically from mechanics reporting under the logged-in manager.
 
 ### 🔧 Mechanic Workspace
-- **Assigned Job Cards**: Track assigned service jobs, start work (`CREATED` → `IN_PROGRESS`), mark tasks completed (`IN_PROGRESS` → `COMPLETED`), and upload photo evidence.
+- **Assigned Job Cards**: Track assigned service jobs, start work (`CREATED` → `IN_PROGRESS`), mark tasks completed (`IN_PROGRESS` → `COMPLETED`), and wait for manager invoicing (`COMPLETED` → `BILLED`). Mechanic can also upload photo evidence.
 
 ### 🛡️ Admin Features
 - **System Overview Dashboard**: Monitor system metrics (users, vehicles, job cards, total revenue in `₹`) and review recent registered users.
