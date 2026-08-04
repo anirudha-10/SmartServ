@@ -5,7 +5,7 @@ import java.util.List;
 import com.smartserv.dto.jobCard.AddItemToJobCardDto;
 import com.smartserv.dto.jobCard.AssignMechanicDto;
 import com.smartserv.dto.jobCard.CreateJobCardDto;
-import com.smartserv.dto.jobCard.JobCardEvidenceDto;
+
 import com.smartserv.dto.jobCard.JobCardResponseDto;
 import com.smartserv.entity.JobCardStatus;
 
@@ -35,9 +35,6 @@ public interface JobCardService {
 
 	JobCardResponseDto getJobCardItems(Long jobCardId);
 
-	JobCardResponseDto addEvidence(Long jobCardId, JobCardEvidenceDto dto);
-
-	JobCardResponseDto removeEvidence(Long jobCardId, Long evidenceId);
 
 	List<JobCardResponseDto> getJobCardByManager(Long managerId);
 

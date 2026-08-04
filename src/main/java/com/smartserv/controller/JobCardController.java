@@ -17,7 +17,7 @@ import com.smartserv.dto.jobCard.AddItemToJobCardDto;
 import com.smartserv.dto.jobCard.AssignMechanicDto;
 import com.smartserv.dto.jobCard.CancelJobCardDto;
 import com.smartserv.dto.jobCard.CreateJobCardDto;
-import com.smartserv.dto.jobCard.JobCardEvidenceDto;
+
 import com.smartserv.dto.jobCard.JobCardResponseDto;
 import com.smartserv.dto.jobCard.ManagerDashboardDto;
 import com.smartserv.dto.jobCard.MechanicDashboardDto;
@@ -116,24 +116,7 @@ public class JobCardController {
 		return ResponseEntity.ok(jobCardService.getJobCardItems(id));
 	}
 	
-	
-	//-----------------------Evidence management-----------------------
-	
-	@PostMapping("/{id}/evidence")
-	public ResponseEntity<?> addEvidence(@PathVariable Long id, @RequestBody JobCardEvidenceDto dto){
-		return ResponseEntity.ok(jobCardService.addEvidence(id, dto));
-	}
-	
-	@DeleteMapping("/{jobCardId}/evidence/{evidenceId}")
-	public ResponseEntity<?> removeEvidence(@PathVariable Long jobCardId, @PathVariable Long evidenceId){
-		return ResponseEntity.ok(jobCardService.removeEvidence(jobCardId, evidenceId));
-	}
-	
-	@GetMapping("/{id}/evidence")
-	public ResponseEntity<?> getJobCardEvidence(@PathVariable Long id){
-		return ResponseEntity.ok(jobCardService.getJobCardById(id));
-	}
-	
+
 	
 	//-----------------------Query Endpoints-----------------------
 	

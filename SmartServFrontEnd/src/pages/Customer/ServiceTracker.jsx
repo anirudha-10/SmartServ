@@ -6,7 +6,6 @@ import { vehicleService } from '../../services/vehicleService';
 import { appointmentService } from '../../services/appointmentService';
 import { invoiceService } from '../../services/invoiceService';
 import { jobCardService } from '../../services/jobCardService';
-import EvidenceGallery from './EvidenceGallery';
 import RazorpayModal from '../Invoices/RazorpayModal';
 import { getStatusBadge } from '../../utils/statusColors';
 
@@ -322,64 +321,45 @@ const ServiceTracker = () => {
             </Card.Body>
           </Card>
 
-          {/* Details & Image Evidence Tabs */}
-          <Tab.Container defaultActiveKey="evidence">
-            <Card className="border-0 shadow-sm">
-              <Card.Header className="bg-transparent border-0 pt-3 px-4">
-                <Nav variant="tabs">
-                  <Nav.Item>
-                    <Nav.Link eventKey="evidence" className="fw-semibold">
-                      <i className="bi bi-images me-2"></i>Service Image Evidence (Before / After)
-                    </Nav.Link>
-                  </Nav.Item>
-                  <Nav.Item>
-                    <Nav.Link eventKey="details" className="fw-semibold">
-                      <i className="bi bi-file-earmark-text me-2"></i>Job Card Breakdown
-                    </Nav.Link>
-                  </Nav.Item>
-                </Nav>
-              </Card.Header>
-              <Card.Body className="p-4">
-                <Tab.Content>
-                  <Tab.Pane eventKey="evidence">
-                    <EvidenceGallery />
-                  </Tab.Pane>
-
-                  <Tab.Pane eventKey="details">
-                    <Row className="g-3">
-                      <Col md={6}>
-                        <h6 className="fw-bold text-primary">Service Summary</h6>
-                        <ul className="list-group list-group-flush">
-                          <li className="list-group-item d-flex justify-content-between px-0">
-                            <span className="text-muted">Appointment ID:</span>
-                            <span className="fw-bold">#{activeAppt.id}</span>
-                          </li>
-                          <li className="list-group-item d-flex justify-content-between px-0">
-                            <span className="text-muted">Vehicle Registered:</span>
-                            <span className="fw-bold">{formatTitle(currentVehicle?.brand || currentVehicle?.make, currentVehicle?.model)}</span>
-                          </li>
-                          <li className="list-group-item d-flex justify-content-between px-0">
-                            <span className="text-muted">License Plate:</span>
-                            <span className="fw-bold font-monospace">{currentVehicle?.licensePlate || 'N/A'}</span>
-                          </li>
-                          <li className="list-group-item d-flex justify-content-between px-0">
-                            <span className="text-muted">Status:</span>
-                            <span className="fw-bold">{activeAppt.status || 'PENDING'}</span>
-                          </li>
-                        </ul>
-                      </Col>
-                      <Col md={6}>
-                        <h6 className="fw-bold text-primary">Service Description / Problem Notes</h6>
-                        <p className="text-muted bg-light p-3 rounded">
-                          {activeAppt.problemDescription || activeAppt.description || 'No specific issue notes logged for this service booking.'}
-                        </p>
-                      </Col>
-                    </Row>
-                  </Tab.Pane>
-                </Tab.Content>
-              </Card.Body>
-            </Card>
-          </Tab.Container>
+          {/* Details Card */}
+          <Card className="border-0 shadow-sm">
+            <Card.Header className="bg-transparent border-0 pt-3 px-4">
+              <div className="fw-semibold text-primary">
+                <i className="bi bi-file-earmark-text me-2"></i>Job Card Breakdown
+              </div>
+            </Card.Header>
+            <Card.Body className="p-4">
+              <Row className="g-3">
+                <Col md={6}>
+                  <h6 className="fw-bold text-primary">Service Summary</h6>
+                  <ul className="list-group list-group-flush">
+                    <li className="list-group-item d-flex justify-content-between px-0">
+                      <span className="text-muted">Appointment ID:</span>
+                      <span className="fw-bold">#{activeAppt.id}</span>
+                    </li>
+                    <li className="list-group-item d-flex justify-content-between px-0">
+                      <span className="text-muted">Vehicle Registered:</span>
+                      <span className="fw-bold">{formatTitle(currentVehicle?.brand || currentVehicle?.make, currentVehicle?.model)}</span>
+                    </li>
+                    <li className="list-group-item d-flex justify-content-between px-0">
+                      <span className="text-muted">License Plate:</span>
+                      <span className="fw-bold font-monospace">{currentVehicle?.licensePlate || 'N/A'}</span>
+                    </li>
+                    <li className="list-group-item d-flex justify-content-between px-0">
+                      <span className="text-muted">Status:</span>
+                      <span className="fw-bold">{activeAppt.status || 'PENDING'}</span>
+                    </li>
+                  </ul>
+                </Col>
+                <Col md={6}>
+                  <h6 className="fw-bold text-primary">Service Description / Problem Notes</h6>
+                  <p className="text-muted bg-light p-3 rounded">
+                    {activeAppt.problemDescription || activeAppt.description || 'No specific issue notes logged for this service booking.'}
+                  </p>
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
         </>
       )}
 

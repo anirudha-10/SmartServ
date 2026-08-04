@@ -10,13 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.smartserv.dto.jobCard.AddItemToJobCardDto;
 import com.smartserv.dto.jobCard.AssignMechanicDto;
 import com.smartserv.dto.jobCard.CreateJobCardDto;
-import com.smartserv.dto.jobCard.JobCardEvidenceDto;
 import com.smartserv.dto.jobCard.JobCardItemDto;
 import com.smartserv.dto.jobCard.JobCardResponseDto;
 import com.smartserv.entity.Appointment;
 import com.smartserv.entity.Inventory;
 import com.smartserv.entity.JobCard;
-import com.smartserv.entity.JobCardEvidence;
 import com.smartserv.entity.JobCardItem;
 import com.smartserv.entity.JobCardStatus;
 import com.smartserv.entity.Role;
@@ -316,50 +314,6 @@ public class JobCardServiceImpl implements JobCardService {
 		return mapResponseToDto(jobCard);
 	}
 
-	@Override
-	public JobCardResponseDto addEvidence(Long jobCardId, JobCardEvidenceDto dto) {
-		JobCard jobCard = jobCardRepo.findById(jobCardId)
-				.orElseThrow(() -> new ResourceNotFoundException("Job card not found."));
-
-		if (jobCard.getJobCardStatus() != JobCardStatus.IN_PROGRESS) {
-			throw new InvalidOperationException("Cannot add evidence to job Card with status: "
-					+ jobCard.getJobCardStatus() + ". Can add evidence in job card having status IN_PROGRESS.");
-		}
-
-		JobCardEvidence evidence = new JobCardEvidence();
-		evidence.setJobCard(jobCard);
-		evidence.setPhotoUrl(dto.getPhotoUrl());
-		evidence.setDescription(dto.getDescription());
-		evidence.setUploadedAt(LocalDateTime.now());
-
-		jobCard.getEvidences().add(evidence);
-
-		JobCard updated = jobCardRepo.save(jobCard);
-		log.info("added evidence to job card: {}. Total evidence: {} ", jobCardId, updated.getEvidences().size());
-
-		return mapResponseToDto(updated);
-	}
-
-	@Override
-	public JobCardResponseDto removeEvidence(Long jobCardId, Long evidenceId) {
-		JobCard jobCard = jobCardRepo.findById(jobCardId)
-				.orElseThrow(() -> new ResourceNotFoundException("job card not found."));
-
-		if (jobCard.getJobCardStatus() == JobCardStatus.COMPLETED) {
-			throw new InvalidOperationException("cannot remove evidence from COMPLETED job cards");
-		}
-
-		JobCardEvidence evidenceToRemove = jobCard.getEvidences().stream()
-				.filter(evidence -> evidence.getId().equals(evidenceId)).findFirst()
-				.orElseThrow(() -> new ResourceNotFoundException("Evidence not found in this job card"));
-
-		jobCard.getEvidences().remove(evidenceToRemove);
-
-		JobCard updated = jobCardRepo.save(jobCard);
-		log.info("Removed evidence from job card {}.", jobCardId);
-
-		return mapResponseToDto(updated);
-	}
 
 	@Override
 	public List<JobCardResponseDto> getJobCardByManager(Long managerId) {
@@ -491,8 +445,6 @@ public class JobCardServiceImpl implements JobCardService {
 		List<JobCardItemDto> itemDtos = jobCard.getItems().stream().map(this::mapItemToDto)
 				.collect(Collectors.toList());
 
-		List<JobCardEvidenceDto> evidences = jobCard.getEvidences().stream().map(this::mapEvidenceToDto)
-				.collect(Collectors.toList());
 
 		Double totalAmount = itemDtos.stream().mapToDouble(JobCardItemDto::getTotalPrice).sum();
 
@@ -517,7 +469,7 @@ public class JobCardServiceImpl implements JobCardService {
 				.completionTime(jobCard.getCompletionTime()).createdAt(jobCard.getCreatedOn())
 				.updatedAt(jobCard.getLastUpdated())
 
-				.items(itemDtos).evidence(evidences).totalAmount(totalAmount)
+				.items(itemDtos).totalAmount(totalAmount)
 
 				.build();
 
@@ -529,9 +481,5 @@ public class JobCardServiceImpl implements JobCardService {
 				.totalPrice(jobCardItem.getSnapshotPrice() * jobCardItem.getQuantity()).build();
 	}
 
-	private JobCardEvidenceDto mapEvidenceToDto(JobCardEvidence evidence) {
-		return JobCardEvidenceDto.builder().id(evidence.getId()).photoUrl(evidence.getPhotoUrl())
-				.description(evidence.getDescription()).uploadedAt(evidence.getUploadedAt()).build();
-	}
 
 }
