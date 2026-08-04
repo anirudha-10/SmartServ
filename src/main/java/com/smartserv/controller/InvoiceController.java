@@ -18,16 +18,18 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("/api/invoices")
 @RequiredArgsConstructor
 @Slf4j
-
 public class InvoiceController {
 	private final InvoiceService invoiceService;
 	
 	//------------------Invoice Generation-------------------
 	
+	@PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
 	@PostMapping("/generate/job_card/{jobCardId}")
 	public ResponseEntity<?> generateInvoice(@PathVariable Long jobCardId){
 		log.info("generating invoice for job card : {} ", jobCardId);
@@ -50,16 +52,19 @@ public class InvoiceController {
 	}
 	
 	
+	@PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
 	@GetMapping
 	public ResponseEntity<?> getAllInvoices(){
 		return ResponseEntity.ok(invoiceService.getAllInvoices());
 	}
 	
+	@PreAuthorize("hasAnyRole('MANAGER', 'ADMIN') or #customerId == authentication.credentials")
 	@GetMapping("/customer/{customerId}")
 	public ResponseEntity<?> getInvoicesByCustomerId(@PathVariable Long customerId){
 		return ResponseEntity.ok(invoiceService.getInvoicesByCustomerId(customerId));
 	}
 	
+	@PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
 	@GetMapping("/status/{status}")
 	public ResponseEntity<?> getInvoiceByStatus(@PathVariable PaymentStatus status){
 		return ResponseEntity.ok(invoiceService.getInvoicesByStatus(status));
@@ -90,21 +95,25 @@ public class InvoiceController {
 	
 	//-------------------Statistice-----------------------
 	
+	@PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
 	@GetMapping("/stats/total_count")
 	public ResponseEntity<?> getTotalInvoiceCount(){
 		return ResponseEntity.ok(invoiceService.getTotalInvoicesCount());
 	}
 	
+	@PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
 	@GetMapping("/stats/pending_count")
 	public ResponseEntity<?> getPendingPaymentCount(){
 		return ResponseEntity.ok(invoiceService.getPendingPaymentCount());
 	}
 	
+	@PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
 	@GetMapping("/stats/paid_count")
 	public ResponseEntity<?> getPaidInvoiceCount(){
 		return ResponseEntity.ok(invoiceService.getPaidInvoicesCount());
 	}
 	
+	@PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
 	@GetMapping("/stats/total_revenue")
 	public ResponseEntity<?> getTotalRevenue(){
 		return ResponseEntity.ok(invoiceService.getTotalRevenue());
