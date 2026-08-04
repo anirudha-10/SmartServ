@@ -372,10 +372,7 @@ public class JobCardServiceImpl implements JobCardService {
 
 		List<JobCard> jobCard = jobCardRepo.findByManager(manager);
 
-		return jobCard.stream()
-				.filter(jc -> jc.getJobCardStatus() != JobCardStatus.BILLED)
-				.map(this::mapResponseToDto)
-				.collect(Collectors.toList());
+		return jobCard.stream().map(this::mapResponseToDto).collect(Collectors.toList());
 	}
 
 	@Override

@@ -18,6 +18,7 @@ const JobCardManager = () => {
   const [mechanics, setMechanics] = useState([]);
   const [approvedAppts, setApprovedAppts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState('ACTIVE');
 
   // Modal States
   const [showCreateModal, setShowCreateModal] = useState(Boolean(preselectedApptId));
@@ -72,6 +73,8 @@ const JobCardManager = () => {
             String(jc.mechanicId || jc.mechanic?.id || jc.mechanic?.userId) === String(currentUserId)
           );
         }
+      } else if (currentManagerId) {
+        cardsData = await jobCardService.getByManager(currentManagerId).catch(() => []);
       } else {
         cardsData = await jobCardService.getAll().catch(() => []);
       }
@@ -197,9 +200,25 @@ const JobCardManager = () => {
           <h3 className="fw-bold mb-1">Job Card Management</h3>
           <p className="text-muted mb-0">Create job cards from approved appointments and assign service mechanics.</p>
         </div>
-        <Button variant="primary" className="fw-semibold" onClick={() => setShowCreateModal(true)}>
-          <i className="bi bi-plus-lg me-2"></i>Create Job Card
-        </Button>
+        <div className="d-flex gap-3">
+          <Form.Select 
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            style={{ width: '180px' }}
+            className="fw-semibold shadow-sm"
+          >
+            <option value="ACTIVE">Active Jobs</option>
+            <option value="ALL">All Jobs</option>
+            <option value="CREATED">Created</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="BILLED">Billed</option>
+            <option value="CANCELLED">Cancelled</option>
+          </Form.Select>
+          <Button variant="primary" className="fw-semibold shadow-sm" onClick={() => setShowCreateModal(true)}>
+            <i className="bi bi-plus-lg me-2"></i>Create Job Card
+          </Button>
+        </div>
       </div>
 
       <Card className="border-0 shadow-sm">
@@ -217,14 +236,22 @@ const JobCardManager = () => {
               </tr>
             </thead>
             <tbody>
-              {jobCards.length === 0 ? (
+              {jobCards.filter(jc => {
+                if (filterStatus === 'ALL') return true;
+                if (filterStatus === 'ACTIVE') return jc.status !== 'BILLED' && jc.status !== 'CANCELLED';
+                return jc.status === filterStatus;
+              }).length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-4 text-muted">
-                    No job cards found.
+                    No job cards found for the selected filter.
                   </td>
                 </tr>
               ) : (
-                jobCards.map((jc) => {
+                jobCards.filter(jc => {
+                  if (filterStatus === 'ALL') return true;
+                  if (filterStatus === 'ACTIVE') return jc.status !== 'BILLED' && jc.status !== 'CANCELLED';
+                  return jc.status === filterStatus;
+                }).map((jc) => {
                   const custName = jc.customerName || jc.appointment?.customerName || 'Customer';
                   const brandName = jc.brand || jc.appointment?.vehicle?.brand || jc.appointment?.vehicle?.make || '';
                   const modelName = jc.model || jc.appointment?.vehicle?.model || '';
@@ -273,6 +300,7 @@ const JobCardManager = () => {
                           size="sm" 
                           className="me-2 fw-semibold" 
                           onClick={() => { setSelectedJobCard(jc); setShowAssignModal(true); }}
+                          disabled={jc.status === 'BILLED' || jc.status === 'CANCELLED'}
                         >
                           {mechName ? 'Reassign' : 'Assign'}
                         </Button>
