@@ -52,12 +52,12 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  const login = async (email, password, role) => {
+  const login = async (email, password) => {
     try {
-      const response = await api.post('/auth/login', { email, password, role });
+      const response = await api.post('/auth/login', { email, password });
       const { user: userData } = response.data;
       
-      const userRole = userData?.role || userData?.userRole || response.data?.role || response.data?.userRole || role || 'CUSTOMER';
+      const userRole = userData?.role || userData?.userRole || response.data?.role || response.data?.userRole || 'CUSTOMER';
       const rawUserId = userData?.userId || userData?.id || response.data?.userId || response.data?.id || (userRole === 'CUSTOMER' ? 2 : 1);
       const userId = Number(rawUserId);
 
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(formattedUser));
       
       checkToken();
-      return { success: true };
+      return { success: true, role: userRole };
     } catch (error) {
       return { 
         success: false, 

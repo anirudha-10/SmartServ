@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { Form, Button, Alert, Spinner, Tabs, Tab } from 'react-bootstrap';
+import { Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 
@@ -15,21 +15,7 @@ const schema = yup.object({
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [authError, setAuthError] = useState('');
-  
-  const queryRole = new URLSearchParams(location.search).get('role');
-  const initialRole = ['CUSTOMER', 'MANAGER', 'MECHANIC', 'ADMIN'].includes(queryRole?.toUpperCase()) 
-    ? queryRole.toUpperCase() 
-    : 'CUSTOMER';
-    
-  const [selectedRole, setSelectedRole] = useState(initialRole);
-
-  useEffect(() => {
-    if (queryRole && ['CUSTOMER', 'MANAGER', 'MECHANIC', 'ADMIN'].includes(queryRole.toUpperCase())) {
-      setSelectedRole(queryRole.toUpperCase());
-    }
-  }, [queryRole]);
 
   const {
     register,
@@ -42,11 +28,11 @@ const Login = () => {
   const onSubmit = async (data) => {
     setAuthError('');
     try {
-      const result = await login(data.email, data.password, selectedRole);
+      const result = await login(data.email, data.password);
       if (result && result.success === false) {
         throw new Error(result.message || 'Invalid email or password. Please try again.');
       }
-      toast.success(`${selectedRole} logged in successfully!`);
+      toast.success(`${result.role || 'User'} logged in successfully!`);
       navigate('/');
     } catch (err) {
       setAuthError(err.message || err.response?.data?.message || 'Invalid email or password. Please try again.');
@@ -58,18 +44,6 @@ const Login = () => {
       <div className="text-center mb-4">
         <h5 className="fw-bold">Sign In to Your Account</h5>
       </div>
-      
-      <Tabs
-        id="login-role-tabs"
-        activeKey={selectedRole}
-        onSelect={(k) => setSelectedRole(k)}
-        className="mb-4 nav-justified"
-      >
-        <Tab eventKey="CUSTOMER" title="Customer" />
-        <Tab eventKey="MECHANIC" title="Mechanic" />
-        <Tab eventKey="MANAGER" title="Manager" />
-        <Tab eventKey="ADMIN" title="Admin" />
-      </Tabs>
 
       <Form onSubmit={handleSubmit(onSubmit)}>
         {authError && <Alert variant="danger">{authError}</Alert>}
@@ -103,17 +77,17 @@ const Login = () => {
         <Button variant="primary" type="submit" className="w-100 py-2 fw-bold mb-3" disabled={isSubmitting}>
           {isSubmitting ? (
             <><Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" /> Logging in...</>
-          ) : `Login as ${selectedRole}`}
+          ) : `Login`}
         </Button>
       </Form>
       
       <div className="text-center mt-4 pt-2 border-top">
         <span className="text-muted">Don't have an account? </span>
         <Link 
-          to={selectedRole === 'ADMIN' ? '/register?role=MANAGER' : `/register?role=${selectedRole}`} 
+          to="/register" 
           className="text-decoration-none fw-bold text-primary"
         >
-          Register as {selectedRole === 'MANAGER' ? 'Manager' : selectedRole === 'MECHANIC' ? 'Mechanic' : 'Customer'}
+          Register as Customer
         </Link>
       </div>
     </>
