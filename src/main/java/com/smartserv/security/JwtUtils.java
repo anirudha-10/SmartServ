@@ -56,6 +56,24 @@ public class JwtUtils {
         return claims.getSubject();
     }
 
+    public String getRoleFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.get("role", String.class);
+    }
+
+    public Long getUserIdFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.get("userId", Long.class);
+    }
+
     public boolean validateToken(String token) {
         try {
             Jwts.parser()

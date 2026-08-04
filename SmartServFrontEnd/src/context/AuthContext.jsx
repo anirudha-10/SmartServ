@@ -11,65 +11,29 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const checkToken = () => {
-    const token = localStorage.getItem('token');
     const storedUserRaw = localStorage.getItem('user');
     const storedRole = localStorage.getItem('role');
-    let storedUser = null;
 
     if (storedUserRaw) {
       try {
-        storedUser = JSON.parse(storedUserRaw);
-      } catch (e) {
-        console.error('Failed to parse stored user:', e);
-      }
-    }
-
-    if (token) {
-      try {
-        const cleanToken = token.startsWith('Bearer ') ? token.substring(7) : token;
-        const decoded = jwtDecode(cleanToken);
-        
-        // Check JWT Expiration
-        const currentTime = Date.now() / 1000;
-        if (decoded.exp && decoded.exp < currentTime) {
-          logout();
-          return;
-        }
-
-        const role = storedRole || decoded.role || decoded.userRole || storedUser?.role || storedUser?.userRole || 'CUSTOMER';
-        const rawUserId = decoded.userId || decoded.id || storedUser?.userId || storedUser?.id || (role === 'CUSTOMER' ? 2 : 1);
+        const storedUser = JSON.parse(storedUserRaw);
+        const role = storedRole || storedUser.role || storedUser.userRole || 'CUSTOMER';
+        const rawUserId = storedUser.userId || storedUser.id || (role === 'CUSTOMER' ? 2 : 1);
         const userId = Number(rawUserId);
 
         const formattedUser = {
           userId,
           id: userId,
-          userName: storedUser?.userName || decoded.sub || decoded.userName || 'User',
-          email: storedUser?.email || decoded.email || decoded.sub || '',
+          userName: storedUser.userName || 'User',
+          email: storedUser.email || '',
           role,
           userRole: role,
-          mobile: storedUser?.mobile || ''
+          mobile: storedUser.mobile || ''
         };
-
         setUser(formattedUser);
-      } catch (error) {
-        console.error("Token decode error:", error);
-        if (storedUser) {
-          const role = storedRole || storedUser.role || storedUser.userRole || 'CUSTOMER';
-          const rawUserId = storedUser.userId || storedUser.id || (role === 'CUSTOMER' ? 2 : 1);
-          const userId = Number(rawUserId);
-          const formattedUser = {
-            userId,
-            id: userId,
-            userName: storedUser.userName || 'User',
-            email: storedUser.email || '',
-            role,
-            userRole: role,
-            mobile: storedUser.mobile || ''
-          };
-          setUser(formattedUser);
-        } else {
-          logout();
-        }
+      } catch (e) {
+        console.error('Failed to parse stored user:', e);
+        logout();
       }
     } else {
       setUser(null);
@@ -91,7 +55,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password, role) => {
     try {
       const response = await api.post('/auth/login', { email, password, role });
-      const { token, user: userData } = response.data;
+      const { user: userData } = response.data;
       
       const userRole = userData?.role || userData?.userRole || response.data?.role || response.data?.userRole || role || 'CUSTOMER';
       const rawUserId = userData?.userId || userData?.id || response.data?.userId || response.data?.id || (userRole === 'CUSTOMER' ? 2 : 1);
@@ -107,9 +71,6 @@ export const AuthProvider = ({ children }) => {
         mobile: userData?.mobile || ''
       };
 
-      if (token) {
-        localStorage.setItem('token', token);
-      }
       localStorage.setItem('role', userRole);
       localStorage.setItem('user', JSON.stringify(formattedUser));
       
@@ -123,8 +84,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (e) {
+      console.error('Logout API failed', e);
+    }
     localStorage.removeItem('role');
     localStorage.removeItem('user');
     setUser(null);

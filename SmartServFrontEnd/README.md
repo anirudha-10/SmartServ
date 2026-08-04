@@ -47,6 +47,16 @@ A modern, responsive, role-based Web Application built with **React 19**, **Vite
 
 ---
 
+## 🔐 Security & Authentication
+
+SmartServ Frontend employs a secure authentication flow designed to prevent Cross-Site Scripting (XSS) and state tampering:
+
+- **HttpOnly Cookies**: The JWT access token is securely managed via `HttpOnly` and `SameSite` cookies by the browser. The token is never exposed to `localStorage` or JavaScript.
+- **Axios Credentials**: The Axios HTTP client is configured with `withCredentials: true` to seamlessly attach the secure session cookie on all outbound requests to the backend.
+- **Stateless UI Authentication**: While the actual JWT is completely protected, basic user profile data (e.g., role, name) is maintained in state/localStorage solely for conditionally rendering UI elements (e.g., Manager Dashboard vs Customer Dashboard). All true authorization checks (RBAC and IDOR) happen exclusively on the Spring Boot backend.
+
+---
+
 ## 🛠 Tech Stack
 
 | Component | Technology | Version |

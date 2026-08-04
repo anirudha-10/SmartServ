@@ -38,7 +38,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest, jakarta.servlet.http.HttpServletResponse httpResponse) {
         String email = loginRequest.get("email");
         String password = loginRequest.get("password");
 
@@ -60,9 +60,16 @@ public class AuthController {
 
         String token = jwtUtils.generateToken(user);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("token", token);
+        // Set token in HttpOnly cookie
+        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("jwt", token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // In production, this should be true for HTTPS
+        cookie.setPath("/");
+        cookie.setMaxAge(24 * 60 * 60); // 1 day
+        httpResponse.addCookie(cookie);
 
+        Map<String, Object> response = new HashMap<>();
+        
         Map<String, Object> userData = new HashMap<>();
         userData.put("id", user.getId());
         userData.put("userId", user.getId());
@@ -73,5 +80,16 @@ public class AuthController {
         response.put("user", userData);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(jakarta.servlet.http.HttpServletResponse httpResponse) {
+        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("jwt", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        httpResponse.addCookie(cookie);
+        return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
 }

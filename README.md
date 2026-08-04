@@ -822,8 +822,7 @@ Manager
 - A mechanic can only be assigned to job cards managed by their manager
 - Manager authorization is validated during mechanic assignment
 
-> **Note:** Currently, all endpoints are publicly accessible (`anyRequest().permitAll()`). JWT-based authentication infrastructure is included in dependencies but not yet enforced.
-
+> **Note:** Endpoints are secured using JWT-based authentication via an `HttpOnly` cookie. Spring Security is configured with `@EnableMethodSecurity` to enforce role-based access control (RBAC) across controllers using `@PreAuthorize` tags. The application also includes ownership validation (e.g., verifying `customerId` against the authenticated token) to prevent Insecure Direct Object Reference (IDOR) vulnerabilities.
 ---
 
 ## 🔄 Business Logic & Workflow
