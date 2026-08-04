@@ -2,6 +2,7 @@ package com.smartserv.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import com.smartserv.entity.Status;
 
@@ -25,6 +26,7 @@ public class AppointmentResponseDto {
 	private String mobile;
 	
 	private LocalDate requestDate;
+	private LocalTime scheduledTime;
 	private String problemDescription;
 	private String customerPhotoUrl;
 	

@@ -1,6 +1,7 @@
 package com.smartserv.dto;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.FutureOrPresent;
@@ -18,6 +19,8 @@ public class CreateAppointmentDto {
 	@NotNull(message = "Appointment date cannot be null.")
 	@FutureOrPresent(message = "Appointment date must be today or in the future.")
 	private LocalDate requestDate;
+	
+	private LocalTime scheduledTime;
 	
 	@NotBlank(message = "Description cannot be blank.")
 	@Size(max=500, message= "Description cannot be greater than 500.")

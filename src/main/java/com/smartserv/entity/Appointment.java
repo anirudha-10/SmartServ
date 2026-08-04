@@ -1,6 +1,7 @@
 package com.smartserv.entity;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -23,6 +24,9 @@ public class Appointment extends BaseEntity{
 
     @Column(name="request_date", nullable=false)
     private LocalDate requestDate;
+
+    @Column(name="scheduled_time")
+    private LocalTime scheduledTime;
 
     @Column(name="problem_description")
     private String problemDescription;

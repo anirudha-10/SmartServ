@@ -6,6 +6,7 @@ import { vehicleService } from '../../services/vehicleService';
 import { appointmentService } from '../../services/appointmentService';
 import { invoiceService } from '../../services/invoiceService';
 import { CardSkeleton } from '../../components/common/SkeletonLoader';
+import { getStatusBadge } from '../../utils/statusColors';
 
 const CustomerDashboard = () => {
   const { user } = useAuth();
@@ -211,9 +212,11 @@ const CustomerDashboard = () => {
                         <div className="text-body small">{notesText || 'N/A'}</div>
                       </td>
                       <td className="align-middle">
-                        <Badge bg={app.status === 'APPROVED' ? 'success' : app.status === 'PENDING' ? 'warning' : 'secondary'}>
-                          {app.status || 'PENDING'}
-                        </Badge>
+                        <div>
+                          <Badge bg={getStatusBadge(app.status)}>
+                            {app.status || 'PENDING'}
+                          </Badge>
+                        </div>
                       </td>
                       <td className="text-end pe-4 align-middle">
                         <Button variant="outline-primary" size="sm" onClick={() => navigate('/customer/tracker')}>

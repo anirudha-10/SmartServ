@@ -8,6 +8,7 @@ import { invoiceService } from '../../services/invoiceService';
 import { jobCardService } from '../../services/jobCardService';
 import EvidenceGallery from './EvidenceGallery';
 import RazorpayModal from '../Invoices/RazorpayModal';
+import { getStatusBadge } from '../../utils/statusColors';
 
 const ServiceTracker = () => {
   const { user } = useAuth();
@@ -127,8 +128,11 @@ const ServiceTracker = () => {
   if (activeAppt) {
     if (currentInvoice?.paymentStatus === 'PAID') activeStep = 7;
     else if (currentInvoice) activeStep = 6;
-    else if (activeAppt.status === 'COMPLETED') activeStep = 5;
-    else if (activeAppt.status === 'IN_PROGRESS') activeStep = 4;
+    else if (activeAppt.status === 'COMPLETED' || activeJobCard?.status === 'COMPLETED') activeStep = 5;
+    else if (activeJobCard?.status === 'IN_PROGRESS') activeStep = 4;
+    else if (activeJobCard?.mechanicId || activeJobCard?.mechanic) activeStep = 3;
+    else if (activeJobCard) activeStep = 2;
+    else if (activeAppt.status === 'IN_PROGRESS') activeStep = 2; // Job card created means IN_PROGRESS for appointment
     else if (activeAppt.status === 'APPROVED') activeStep = 1;
     else activeStep = 0;
   }
@@ -261,7 +265,7 @@ const ServiceTracker = () => {
               <div className="text-md-end d-flex flex-column align-items-md-end gap-2">
                 <div>
                   <div className="small text-white-50 text-uppercase fw-semibold mb-1">Service Status</div>
-                  <Badge bg={activeAppt.status === 'APPROVED' ? 'success' : activeAppt.status === 'IN_PROGRESS' ? 'info' : 'warning'} className="px-3 py-2 fs-6">
+                  <Badge bg={getStatusBadge(activeAppt.status)} className="px-3 py-2 fs-6">
                     {activeAppt.status || 'PENDING'}
                   </Badge>
                 </div>

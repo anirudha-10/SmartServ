@@ -119,27 +119,6 @@ const DashboardLayout = () => {
             <i className={`bi ${theme === 'light' ? 'bi-moon-stars-fill' : 'bi-sun-fill'}`}></i>
           </Button>
 
-          {/* Notifications Dropdown */}
-          <Dropdown align="end">
-            <Dropdown.Toggle variant="light" className="position-relative border-0 bg-transparent p-2">
-              <i className="bi bi-bell fs-5 text-body"></i>
-              <span className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
-                <span className="visually-hidden">New alerts</span>
-              </span>
-            </Dropdown.Toggle>
-
-            <Dropdown.Menu className="shadow border-0 p-2 dropdown-menu-end" style={{ width: '300px' }}>
-              <Dropdown.Header className="fw-bold">Notifications</Dropdown.Header>
-              <Dropdown.Item className="py-2 border-bottom">
-                <small className="fw-bold d-block text-primary">Appointment Approved</small>
-                <small className="text-muted">Your appointment for Honda Civic was approved.</small>
-              </Dropdown.Item>
-              <Dropdown.Item className="py-2">
-                <small className="fw-bold d-block text-success">Invoice Generated</small>
-                <small className="text-muted">Invoice #INV-2026 is ready for payment.</small>
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
 
           {/* Profile Dropdown */}
           <Dropdown align="end">
