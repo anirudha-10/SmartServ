@@ -36,9 +36,10 @@ A modern, responsive, role-based Web Application built with **React 19**, **Vite
 - **Manager Control Center**: Real-time operational metrics for pending approvals, active job cards, low stock alerts, and workshop revenue.
 - **Pending Appointment Approvals**: Review customer requests with formatted date/time, vehicle information, and service note badges; approve or reject with custom reasons.
 - **Job Card Creation & Mechanic Assignment**: Create job cards specifying estimated completion dates and assign technicians specifically from mechanics reporting under the logged-in manager.
+- **Category-Based Job Card Filtering**: Filter job cards seamlessly by status categories (`CREATED`, `IN_PROGRESS`, `COMPLETED`, `BILLED`, `CANCELLED`). Defaults to an 'Active Jobs' view to keep the workspace clean, while allowing historical querying.
 
 ### 🔧 Mechanic Workspace
-- **Assigned Job Cards**: Track assigned service jobs, start work (`CREATED` → `IN_PROGRESS`), mark tasks completed (`IN_PROGRESS` → `COMPLETED`), and upload photo evidence.
+- **Assigned Job Cards**: Track assigned service jobs, start work (`CREATED` → `IN_PROGRESS`), mark tasks completed (`IN_PROGRESS` → `COMPLETED`), and wait for manager invoicing (`COMPLETED` → `BILLED`). Mechanic can also upload photo evidence.
 
 ### 🛡️ Admin Features
 - **System Overview Dashboard**: Monitor system metrics (users, vehicles, job cards, total revenue in `₹`) and review recent registered users.

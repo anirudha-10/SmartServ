@@ -878,7 +878,9 @@ stateDiagram-v2
     CREATED --> CANCELLED : Cancel (with reason)
     IN_PROGRESS --> COMPLETED : Complete Work (items required)
     IN_PROGRESS --> CANCELLED : Cancel (with reason + stock return)
-    COMPLETED --> [*]
+    COMPLETED --> BILLED : Generate Invoice
+    COMPLETED --> [*] : (Alternatively, ends here if no invoice)
+    BILLED --> [*]
     CANCELLED --> [*]
 ```
 

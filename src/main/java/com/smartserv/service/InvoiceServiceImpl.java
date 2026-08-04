@@ -37,7 +37,6 @@ import com.smartserv.repository.InvoiceRepository;
 import com.smartserv.repository.JobCardRepository;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
-import com.razorpay.RazorpayException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -93,6 +92,10 @@ public class InvoiceServiceImpl implements InvoiceService{
 		invoice.setJobCard(jobCard);
 		
 		Invoice saved = invoiceRepo.save(invoice);
+		
+		jobCard.setJobCardStatus(JobCardStatus.BILLED);
+		jobCardRepo.save(jobCard);
+		
 		log.info("invoice generated for job Card : {} ", jobCardId);
 		
 		return mapToResponseDto(saved);

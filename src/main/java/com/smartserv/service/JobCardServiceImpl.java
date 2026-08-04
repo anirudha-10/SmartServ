@@ -443,8 +443,7 @@ public class JobCardServiceImpl implements JobCardService {
 
 	@Override
 	public Long getManagerJobCardCount(Long managerId) {
-
-		return jobCardRepo.countByManagerId(managerId);
+		return jobCardRepo.countByManagerId(managerId) - jobCardRepo.countByManagerIdAndJobCardStatus(managerId, JobCardStatus.BILLED);
 	}
 
 	@Override
