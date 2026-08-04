@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Button, Card, Row, Col, Alert, Spinner } from 'react-bootstrap';
+import { Form, Button, Card, Row, Col, Alert, Spinner, Badge } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -16,6 +16,8 @@ const schema = yup.object({
   contactPhone: yup.string().required('Contact phone number is required'),
 }).required();
 
+let isFetchingLocation = false;
+
 const RsaRequest = () => {
   const navigate = useNavigate();
   const { user, role } = useAuth();
@@ -26,10 +28,46 @@ const RsaRequest = () => {
     register,
     handleSubmit,
     setValue,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
   });
+
+  const handleFetchCurrentLocation = () => {
+    if ('geolocation' in navigator) {
+      setGettingLocation(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const loc = `${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`;
+          if (getValues('location') !== loc) {
+            setValue('location', loc);
+          }
+          setGettingLocation(false);
+          isFetchingLocation = false;
+        },
+        (error) => {
+          setGettingLocation(false);
+          isFetchingLocation = false;
+        }
+      );
+    } else {
+      isFetchingLocation = false;
+    }
+  };
+
+  useEffect(() => {
+    // Auto-fetch GPS Location if not already fetching and not already filled
+    if (!getValues('location') && !isFetchingLocation) {
+      isFetchingLocation = true;
+      handleFetchCurrentLocation();
+    }
+
+    return () => {
+      isFetchingLocation = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const fetchVehicles = async () => {
@@ -48,29 +86,13 @@ const RsaRequest = () => {
       }
     };
     if (user) {
+      // 3. Prepopulate Contact Phone
+      if (user.mobile || user.phone) {
+        setValue('contactPhone', user.mobile || user.phone);
+      }
       fetchVehicles();
     }
-  }, [user, role]);
-
-  const handleFetchCurrentLocation = () => {
-    if ('geolocation' in navigator) {
-      setGettingLocation(true);
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const loc = `${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`;
-          setValue('location', loc);
-          toast.success('GPS Location acquired!');
-          setGettingLocation(false);
-        },
-        (error) => {
-          toast.error('Unable to fetch GPS location. Please enter manually.');
-          setGettingLocation(false);
-        }
-      );
-    } else {
-      toast.error('Geolocation is not supported by your browser.');
-    }
-  };
+  }, [user, role, setValue]);
 
   const onSubmit = async (data) => {
     try {
@@ -170,7 +192,30 @@ const RsaRequest = () => {
 
               <Col xs={12}>
                 <Form.Group>
-                  <Form.Label className="fw-semibold">Describe the Issue</Form.Label>
+                  <Form.Label className="fw-semibold mb-1">Describe the Issue</Form.Label>
+                  <div className="d-flex flex-wrap gap-2 mb-2">
+                    {[
+                      { icon: '🛞', text: 'Flat Tire' },
+                      { icon: '🔋', text: 'Dead Battery' },
+                      { icon: '⛽', text: 'Out of Fuel' },
+                      { icon: '💥', text: 'Accident / Towing' },
+                      { icon: '💨', text: 'Engine Overheating' }
+                    ].map(issue => (
+                      <Badge 
+                        key={issue.text} 
+                        bg="secondary" 
+                        pill 
+                        className="bg-opacity-10 text-secondary border border-secondary"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => {
+                          const currentDesc = getValues('description') || '';
+                          setValue('description', currentDesc ? `${currentDesc}, ${issue.text}` : issue.text, { shouldValidate: true });
+                        }}
+                      >
+                        {issue.icon} {issue.text}
+                      </Badge>
+                    ))}
+                  </div>
                   <Form.Control 
                     as="textarea" 
                     rows={4} 
