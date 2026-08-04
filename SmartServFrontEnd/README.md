@@ -30,7 +30,7 @@ A modern, responsive, role-based Web Application built with **React 19**, **Vite
 - **Multi-Vehicle Management**: Add, update, and manage multiple vehicles (License Plate, Brand/Make, Model, Color).
 - **Service & RSA Booking**: Book regular service appointments or request emergency Roadside Assistance (RSA) with live GPS coordinate acquisition.
 - **Live Multi-Vehicle Service Tracker**: Switch between owned vehicles via interactive dropdown to monitor live service lifecycle progress, job card breakdowns, before/after photo evidence, and launch Razorpay Checkout modal for instant invoice payment.
-- **Razorpay Online Payments**: Pay vehicle service invoices directly via Razorpay Standard Checkout SDK (UPI, Cards, NetBanking) with dynamic order verification and currency formatting in INR (`₹`).
+- **Secure Razorpay Checkout**: Pay vehicle service invoices directly via the official, PCI-compliant Razorpay Checkout Overlay (UPI, Cards, NetBanking). The integration securely delegates card handling to Razorpay servers with cryptographically signed order verification.
 
 ### 👔 Manager Features
 - **Manager Control Center**: Real-time operational metrics for pending approvals, active job cards, low stock alerts, and workshop revenue.
