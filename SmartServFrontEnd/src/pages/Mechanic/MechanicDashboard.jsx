@@ -14,14 +14,8 @@ const MechanicDashboard = () => {
   // Modal States
   const [selectedJob, setSelectedJob] = useState(null);
   const [showPartModal, setShowPartModal] = useState(false);
-  const [showEvidenceModal, setShowEvidenceModal] = useState(false);
-
-  // Form inputs
   const [selectedPartId, setSelectedPartId] = useState('');
   const [partQty, setPartQty] = useState(1);
-  const [evidenceUrl, setEvidenceUrl] = useState('');
-  const [evidenceStage, setEvidenceStage] = useState('BEFORE');
-  const [evidenceDesc, setEvidenceDesc] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const fetchMechanicJobs = async () => {
@@ -104,32 +98,6 @@ const MechanicDashboard = () => {
     }
   };
 
-  const handleAddEvidence = async (e) => {
-    e.preventDefault();
-    if (!evidenceUrl) {
-      toast.error('Please enter an image URL.');
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-      await jobCardService.addEvidence(selectedJob.id, {
-        imageUrl: evidenceUrl,
-        stage: evidenceStage,
-        description: evidenceDesc,
-      });
-
-      toast.success('Service Evidence Uploaded!');
-      setShowEvidenceModal(false);
-      setEvidenceUrl('');
-      setEvidenceDesc('');
-      fetchMechanicJobs();
-    } catch (err) {
-      toast.error('Failed to upload evidence');
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const activeJobs = jobCards.filter(j => j.status === 'IN_PROGRESS' || j.status === 'ASSIGNED' || j.status === 'CREATED');
   const completedJobs = jobCards.filter(j => j.status === 'COMPLETED');
@@ -282,14 +250,7 @@ const MechanicDashboard = () => {
                                   >
                                     <i className="bi bi-plus-circle me-1"></i>Add Part
                                   </Button>
-                                  <Button 
-                                    variant="outline-secondary" 
-                                    size="sm" 
-                                    className="me-2" 
-                                    onClick={() => { setSelectedJob(job); setShowEvidenceModal(true); }}
-                                  >
-                                    <i className="bi bi-camera me-1"></i>Photo
-                                  </Button>
+
                                   <Button variant="success" size="sm" onClick={() => handleCompleteJob(job.id)}>
                                     <i className="bi bi-check-circle me-1"></i>Finish
                                   </Button>
@@ -404,59 +365,7 @@ const MechanicDashboard = () => {
         </Modal>
       )}
 
-      {/* Modal: Upload Evidence Photo */}
-      {selectedJob && (
-        <Modal show={showEvidenceModal} onHide={() => setShowEvidenceModal(false)} centered>
-          <Modal.Header closeButton>
-            <Modal.Title className="fw-bold">Upload Service Evidence for #JC-{selectedJob.id}</Modal.Title>
-          </Modal.Header>
-          <Form onSubmit={handleAddEvidence}>
-            <Modal.Body>
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-semibold">Service Stage</Form.Label>
-                <Form.Select 
-                  value={evidenceStage} 
-                  onChange={(e) => setEvidenceStage(e.target.value)}
-                >
-                  <option value="BEFORE">BEFORE SERVICE</option>
-                  <option value="DURING">DURING SERVICE</option>
-                  <option value="AFTER">AFTER SERVICE</option>
-                </Form.Select>
-              </Form.Group>
 
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-semibold">Image URL</Form.Label>
-                <Form.Control 
-                  type="url" 
-                  placeholder="https://images.unsplash.com/..." 
-                  value={evidenceUrl} 
-                  onChange={(e) => setEvidenceUrl(e.target.value)} 
-                  required 
-                />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-semibold">Description / Notes</Form.Label>
-                <Form.Control 
-                  as="textarea" 
-                  rows={2} 
-                  placeholder="Inspection note, worn part photo..." 
-                  value={evidenceDesc} 
-                  onChange={(e) => setEvidenceDesc(e.target.value)} 
-                />
-              </Form.Group>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="light" className="border" onClick={() => setShowEvidenceModal(false)}>
-                Cancel
-              </Button>
-              <Button variant="primary" type="submit" disabled={submitting}>
-                {submitting ? <Spinner size="sm" animation="border" /> : 'Upload Evidence'}
-              </Button>
-            </Modal.Footer>
-          </Form>
-        </Modal>
-      )}
     </div>
   );
 };

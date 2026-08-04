@@ -59,8 +59,4 @@ public class JobCard extends BaseEntity {
     @OneToMany(mappedBy = "jobCard", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<JobCardItem> items = new ArrayList<>();
 
-    @OneToMany(mappedBy = "jobCard", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<JobCardEvidence> evidences = new ArrayList<>();
-
 }
-

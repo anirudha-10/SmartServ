@@ -60,7 +60,7 @@ The system supports **four user roles** (Admin, Manager, Mechanic, Customer) wit
 | **User Management** | Registration with BCrypt password hashing, role assignment (ADMIN, MANAGER, CUSTOMER, MECHANIC), manager-mechanic hierarchy, soft-delete |
 | **Vehicle Management** | Vehicle registration linked to customers, lookup by license plate, soft-delete |
 | **Appointment Scheduling** | Future-date validation, RSA (Roadside Assistance) with GPS coordinates, approve/reject workflow, status tracking |
-| **Job Card System** | Full lifecycle (CREATED → IN_PROGRESS → COMPLETED/CANCELLED), mechanic assignment with manager authorization, parts/evidence management |
+| **Job Card System** | Full lifecycle (CREATED → IN_PROGRESS → COMPLETED/CANCELLED), mechanic assignment with manager authorization, parts management |
 | **Inventory Management** | SKU-based tracking, optimistic locking for concurrency, low-stock/out-of-stock alerts, keyword search, soft-delete |
 | **Invoice & Billing** | Auto-generation from completed job cards, configurable tax calculation, unique invoice numbering (INV-YYYY-NNNN) |
 | **Payment Processing** | Razorpay order creation, HMAC-SHA256 signature verification, payment status tracking |

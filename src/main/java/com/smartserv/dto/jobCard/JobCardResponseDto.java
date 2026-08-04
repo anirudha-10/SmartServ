@@ -41,7 +41,6 @@ public class JobCardResponseDto {
 	private LocalDateTime completionTime;
 	
 	private List<JobCardItemDto> items;
-	private List<JobCardEvidenceDto> evidence;
 	
 	private Double totalAmount;
 	
