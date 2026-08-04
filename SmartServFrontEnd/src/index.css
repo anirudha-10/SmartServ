@@ -17,7 +17,7 @@
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
+  letter-spacing: 0.18px;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -48,6 +48,22 @@
   #social .button-icon {
     filter: invert(1) brightness(2);
   }
+}
+
+[data-bs-theme="light"] {
+  color-scheme: light;
+}
+
+[data-bs-theme="dark"] {
+  color-scheme: dark;
+}
+
+[data-bs-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-bs-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator,
+[data-bs-theme="dark"] input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+[data-bs-theme="dark"] ::-webkit-calendar-picker-indicator {
+  filter: invert(1) !important;
+  opacity: 1;
 }
 
 body {

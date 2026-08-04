@@ -196,7 +196,7 @@ const CustomerDashboard = () => {
                   return (
                     <tr key={app.id}>
                       <td className="ps-4 align-middle">
-                        <div className="fw-semibold text-dark">
+                        <div className="fw-semibold text-body-emphasis">
                           {new Date(app.scheduledDate || app.requestDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}
                         </div>
                         {(app.scheduledTime || (typeMatch && rawDesc.match(/at\s+(\d{1,2}:\d{2})/i)?.[1])) && (

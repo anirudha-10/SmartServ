@@ -82,7 +82,7 @@ const InventoryForm = () => {
   return (
     <div>
       <div className="d-flex align-items-center mb-4">
-        <Button variant="link" className="text-decoration-none text-dark p-0 me-3" onClick={() => navigate('/inventory')}>
+        <Button variant="link" className="text-decoration-none text-body-emphasis p-0 me-3" onClick={() => navigate('/inventory')}>
           <i className="bi bi-arrow-left fs-4"></i>
         </Button>
         <h3 className="fw-bold mb-0">{isEditMode ? 'Edit Item' : 'Add New Item'}</h3>

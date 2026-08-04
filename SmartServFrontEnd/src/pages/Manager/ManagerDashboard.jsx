@@ -73,7 +73,7 @@ const ManagerDashboard = () => {
 
     return (
       <div>
-        <div className="fw-bold text-dark">{custName}</div>
+        <div className="fw-bold text-body-emphasis">{custName}</div>
         <div className="text-primary small fw-semibold">{capitalizedTitle}</div>
         {rawPlate && (
           <span className="badge bg-light text-secondary border font-monospace mt-1 px-2 py-1">
@@ -110,7 +110,7 @@ const ManagerDashboard = () => {
 
     return (
       <div>
-        <div className="fw-semibold text-dark">{formattedDate}</div>
+        <div className="fw-semibold text-body-emphasis">{formattedDate}</div>
         {timeStr && <small className="text-muted"><i className="bi bi-clock me-1"></i>{timeStr}</small>}
       </div>
     );

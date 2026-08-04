@@ -110,16 +110,16 @@ const InvoiceList = () => {
                         {inv.invoiceNumber || `#INV-${inv.id}`}
                       </td>
                       <td className="align-middle fw-medium">#JC-{inv.jobCard?.id || inv.jobCardId}</td>
-                      <td className="align-middle text-dark">
+                      <td className="align-middle text-body-emphasis">
                         <div className="fw-semibold">{inv.vehicleBrand ? `${inv.vehicleBrand} ${inv.vehicleModel || ''}` : 'Vehicle Service'}</div>
                         {inv.vehicleRegistration && <small className="text-muted font-monospace">{inv.vehicleRegistration}</small>}
                       </td>
                       {role !== 'CUSTOMER' && (
-                        <td className="align-middle fw-semibold text-dark">
+                        <td className="align-middle fw-semibold text-body-emphasis">
                           {custName}
                         </td>
                       )}
-                      <td className="align-middle fw-bold text-dark">
+                      <td className="align-middle fw-bold text-body-emphasis">
                         ₹{amt.toFixed(2)}
                       </td>
                     <td className="align-middle">

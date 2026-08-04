@@ -262,7 +262,7 @@ const JobCardManager = () => {
                     <tr key={jc.id}>
                       <td className="ps-4 fw-bold text-primary">#JC-{jc.id}</td>
                       <td>
-                        <div className="fw-bold text-dark">{custName}</div>
+                        <div className="fw-bold text-body-emphasis">{custName}</div>
                         <div className="text-primary small fw-semibold">{formatTitle(brandName, modelName)}</div>
                         {plateNo && (
                           <span className="badge bg-light text-secondary border font-monospace mt-1 px-2 py-1">
@@ -277,7 +277,7 @@ const JobCardManager = () => {
                       </td>
                       <td>
                         {mechName ? (
-                          <span className="fw-semibold text-dark">
+                          <span className="fw-semibold text-body-emphasis">
                             <i className="bi bi-person-badge me-1"></i>{mechName}
                           </span>
                         ) : (
@@ -287,7 +287,7 @@ const JobCardManager = () => {
                         )}
                       </td>
                       <td>
-                        <div className="fw-medium text-dark">{jc.estimatedCompletionDate || 'N/A'}</div>
+                        <div className="fw-medium text-body-emphasis">{jc.estimatedCompletionDate || 'N/A'}</div>
                       </td>
                       <td>
                         <Badge bg={getStatusBadge(jc.status)} className="px-2 py-1">

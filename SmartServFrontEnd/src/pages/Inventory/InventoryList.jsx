@@ -90,7 +90,7 @@ const InventoryList = () => {
                           {sku.toUpperCase()}
                         </span>
                       </td>
-                      <td className="align-middle fw-medium">{item.itemName}</td>
+                      <td className="align-middle fw-bold text-body-emphasis">{item.itemName}</td>
                       <td className="align-middle">
                         {qty <= 5 ? (
                           <Badge bg="danger" className="px-2 py-1">{qty} (Low Stock)</Badge>

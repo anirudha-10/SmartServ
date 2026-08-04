@@ -272,7 +272,7 @@ const ServiceTracker = () => {
                   <Button 
                     variant="warning" 
                     size="sm" 
-                    className="fw-bold text-dark border-0 shadow-sm"
+                    className="fw-bold text-body-emphasis border-0 shadow-sm"
                     onClick={() => { setSelectedInvoice(currentInvoice); setShowPayModal(true); }}
                   >
                     <i className="bi bi-credit-card-2-front me-1"></i> Pay Invoice (₹{parseFloat(currentInvoice.totalAmount || 0).toFixed(2)})

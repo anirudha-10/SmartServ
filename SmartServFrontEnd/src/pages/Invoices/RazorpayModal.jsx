@@ -121,7 +121,7 @@ const RazorpayModal = ({ invoice, show, onHide, onSuccess }) => {
           <div className="bg-light p-3 rounded mb-4">
             <div className="d-flex justify-content-between small text-muted">
               <span>Vehicle:</span>
-              <span className="fw-bold text-dark">{invoice.vehicleBrand} {invoice.vehicleModel}</span>
+              <span className="fw-bold text-body-emphasis">{invoice.vehicleBrand} {invoice.vehicleModel}</span>
             </div>
             <div className="d-flex justify-content-between small text-muted mt-1">
               <span>License Plate:</span>
