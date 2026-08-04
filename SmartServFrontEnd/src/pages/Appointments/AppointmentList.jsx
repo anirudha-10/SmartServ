@@ -70,7 +70,7 @@ const AppointmentList = () => {
 
     return (
       <div>
-        <div className="fw-semibold text-dark">{formattedDate}</div>
+        <div className="fw-semibold text-body-emphasis">{formattedDate}</div>
         {timeStr && <small className="text-muted"><i className="bi bi-clock me-1"></i>{timeStr}</small>}
       </div>
     );

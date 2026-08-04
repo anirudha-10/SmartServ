@@ -1101,6 +1101,9 @@ docker run -d \
 | `RAZORPAY_KEY_ID` | ✅ | — | Razorpay API Key ID |
 | `RAZORPAY_KEY_SECRET` | ✅ | — | Razorpay API Key Secret |
 | `INVOICE_TAX_PERCENTAGE` | ❌ | `18` | Tax percentage applied to invoices |
+| `CORS_ALLOWED_ORIGINS` | ❌ | `http://localhost:5173,...` | Comma-separated list of allowed frontend origins for CORS |
+| `SECURE_COOKIE` | ❌ | `false` | Set to `true` in production to enforce HTTPS-only JWT cookies |
+| `SHOW_SQL` | ❌ | `false` | Set to `true` to enable SQL query logging in development |
 | `MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE` | ❌ | — | Actuator endpoints to expose |
 | `HEALTH_SHOW_DETAILS` | ❌ | — | Actuator health detail level |
 

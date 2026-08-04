@@ -20,6 +20,8 @@ import com.smartserv.service.UserService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
+import org.springframework.beans.factory.annotation.Value;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -30,6 +32,9 @@ public class AuthController {
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+
+    @Value("${app.secure-cookie:false}")
+    private boolean secureCookie;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody @Valid CreateUserDto dto) {
@@ -60,13 +65,15 @@ public class AuthController {
 
         String token = jwtUtils.generateToken(user);
 
-        // Set token in HttpOnly cookie
-        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("jwt", token);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false); // In production, this should be true for HTTPS
-        cookie.setPath("/");
-        cookie.setMaxAge(24 * 60 * 60); // 1 day
-        httpResponse.addCookie(cookie);
+        // Set token in HttpOnly cookie using ResponseCookie for modern attributes
+        ResponseCookie cookie = ResponseCookie.from("jwt", token)
+                .httpOnly(true)
+                .secure(secureCookie)
+                .path("/")
+                .maxAge(24 * 60 * 60)
+                .sameSite("Strict")
+                .build();
+        httpResponse.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, cookie.toString());
 
         Map<String, Object> response = new HashMap<>();
         
@@ -84,12 +91,14 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(jakarta.servlet.http.HttpServletResponse httpResponse) {
-        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("jwt", null);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        httpResponse.addCookie(cookie);
+        ResponseCookie cookie = ResponseCookie.from("jwt", "")
+                .httpOnly(true)
+                .secure(secureCookie)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+        httpResponse.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
 }

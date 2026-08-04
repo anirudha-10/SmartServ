@@ -211,7 +211,7 @@ const MechanicDashboard = () => {
                           <tr key={job.id}>
                             <td className="ps-4 align-middle fw-bold text-primary">#JC-{job.id}</td>
                             <td className="align-middle">
-                              <div className="fw-bold text-dark">{formatTitle(brandName, modelName)}</div>
+                              <div className="fw-bold text-body-emphasis">{formatTitle(brandName, modelName)}</div>
                               <div className="small text-muted">{custName}</div>
                               {plateNo && (
                                 <span className="badge bg-light text-secondary border font-monospace mt-1 px-2 py-1">
@@ -292,7 +292,7 @@ const MechanicDashboard = () => {
                           <tr key={job.id}>
                             <td className="ps-4 align-middle fw-bold text-primary">#JC-{job.id}</td>
                             <td className="align-middle">
-                              <div className="fw-bold text-dark">{formatTitle(brandName, modelName)}</div>
+                              <div className="fw-bold text-body-emphasis">{formatTitle(brandName, modelName)}</div>
                               <div className="small text-muted">{custName}</div>
                               {plateNo && (
                                 <span className="badge bg-light text-secondary border font-monospace mt-1 px-2 py-1">

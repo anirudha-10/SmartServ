@@ -40,7 +40,7 @@ const UserList = () => {
   const getRoleBadge = (role) => {
     switch (role) {
       case 'ADMIN': return 'danger';
-      case 'MANAGER': return 'warning text-dark';
+      case 'MANAGER': return 'warning text-body-emphasis';
       case 'MECHANIC': return 'info';
       case 'CUSTOMER': return 'success';
       default: return 'primary';
