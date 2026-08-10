@@ -73,7 +73,7 @@ const JobCardManager = () => {
             String(jc.mechanicId || jc.mechanic?.id || jc.mechanic?.userId) === String(currentUserId)
           );
         }
-      } else if (currentManagerId) {
+      } else if (currentManagerId && (user?.role === 'MANAGER' || user?.userRole === 'MANAGER')) {
         cardsData = await jobCardService.getByManager(currentManagerId).catch(() => []);
       } else {
         cardsData = await jobCardService.getAll().catch(() => []);
