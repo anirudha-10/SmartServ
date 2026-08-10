@@ -45,6 +45,8 @@ A modern, responsive, role-based Web Application built with **React 19**, **Vite
 - **System Overview Dashboard**: Monitor system metrics (users, vehicles, job cards, total revenue in `₹`) and review recent registered users.
 - **User Management & Soft-Delete**: Full user administration across system roles (Admin, Manager, Mechanic, Customer), create new users, filter active users, and soft-delete user accounts.
 - **Vehicle Registration & Assignment**: Register new vehicles with customer account selection for Admins/Managers and manage existing inventory.
+- **Admin Workspace Access**: Admins retain explicit universal access to all manager-level views (like Job Cards) without encountering RBAC 403 authorization lockouts or rogue redirects, ensured by strict role-checking in the React routing layer (`user.role === 'MANAGER'`).
+- **Production Branding**: Features a fully custom, aesthetic SVG favicon (`favicon.svg`) mapped gracefully to the document `<title>`, ensuring a highly polished look in modern browsers.
 
 ---
 

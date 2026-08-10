@@ -157,6 +157,17 @@ SmartServ follows a **layered architecture** pattern:
 
 ---
 
+## ⚡ Performance Optimizations
+
+SmartServ features a deeply tuned data access layer that prevents common ORM performance pitfalls—specifically **Hidden N+1 Query Problems** caused during DTO mapping.
+
+- **Explicit JPQL `JOIN FETCH`**: Highly nested dependencies (such as `JobCard` -> `Appointment` -> `Vehicle` -> `Customer`) are efficiently fetched using explicit JPQL queries with `JOIN FETCH` clauses in the repositories. This overrides Spring Data JPA's unreliable string-based `@EntityGraph` nested parsers, ensuring that large DTO projections are completed in a single query rather than firing hundreds of secondary select statements.
+- **Lazy Loading Strategy**: By default, `@OneToOne` and `@ManyToOne` bindings use `FetchType.LAZY` to ensure the entity manager never cascades queries unintentionally unless explicitly overridden by a JPQL fetch directive.
+- **Database Aggregations**: Financial and analytic summarization (like total workshop revenue) bypasses Java `Stream` mapping entirely and utilizes direct aggregate queries (e.g., `SELECT SUM(...) FROM...`) for immediate calculations.
+- **Named Entity Graphs**: Standard `@NamedEntityGraph` mappings are integrated directly on root entities for fallback and future robust traversal.
+
+---
+
 ## 📁 Project Structure
 
 ```
