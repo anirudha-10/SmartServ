@@ -286,8 +286,8 @@ public class InvoiceServiceImpl implements InvoiceService{
 
 	@Override
 	public Double getTotalRevenue() {
-		List<Invoice> invoices = invoiceRepo.findByPaymentStatus(PaymentStatus.PAID);
-		return invoices.stream().mapToDouble(inv -> inv.getTotalAmount() != null ? inv.getTotalAmount() : 0.0).sum();
+		Double totalRevenue = invoiceRepo.sumTotalRevenueByStatus(PaymentStatus.PAID);
+		return totalRevenue != null ? totalRevenue : 0.0;
 	}
 
 	

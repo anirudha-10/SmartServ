@@ -10,6 +10,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.FetchType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -56,7 +57,7 @@ public class Invoice extends BaseEntity{
     @Column(name="paid_at")
     private LocalDateTime paidAt;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="job_card_id", nullable=false, unique = true)
     private JobCard jobCard;
 }
